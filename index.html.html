@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>院別収支ロジックマップ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;background:#F4F5F7;min-height:100vh;color:#1E293B;-webkit-font-smoothing:antialiased;zoom:1.25;}
+.header{background:#0F172A;padding:28px 20px 0;color:#fff}
+.header-inner{max-width:960px;margin:0 auto}
+.header-sub{font-size:10px;letter-spacing:4px;text-transform:uppercase;opacity:0.35;font-weight:500}
+.header h1{font-size:24px;font-weight:900;margin:6px 0 0;letter-spacing:-0.5px}
+.header-desc{font-size:12px;opacity:0.45;margin-top:4px;font-weight:400}
+.main-tabs-wrap{background:#0F172A;padding:0 20px}
+.main-tabs{max-width:960px;margin:0 auto;padding:16px 0 0;display:flex;gap:0}
+.main-tab{padding:10px 22px;border-radius:0;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;position:relative;color:rgba(255,255,255,0.45);background:transparent;letter-spacing:0.3px}
+.main-tab.active{color:#fff;background:transparent}
+.main-tab.active::after{content:'';position:absolute;bottom:0;left:12px;right:12px;height:2px;background:#3B82F6;border-radius:1px}
+.main-tab:not(.active):hover{color:rgba(255,255,255,0.7)}
+.content-area{max-width:960px;margin:0 auto;background:#fff;border-radius:0 0 12px 12px;box-shadow:0 4px 24px rgba(0,0,0,0.06);min-height:400px;padding:0 0 20px}
+.sub-bar{padding:12px 16px;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sub-tabs{display:flex;gap:2px;background:#F4F5F7;border-radius:8px;padding:2px}
+.sub-tab{padding:7px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;color:#94A3B8}
+.sub-tab.active{background:#fff;color:#1E293B;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.sub-tab:not(.active){background:transparent}
+.sub-tab:not(.active):hover{color:#64748B}
+.search-wrap{position:relative;flex:1 1 160px}
+.search-wrap input{width:100%;padding:7px 8px 7px 30px;border-radius:8px;border:1px solid #E8EAED;font-size:12px;background:#FAFBFC;outline:none;font-family:inherit;transition:all .2s}
+.search-wrap input:focus{border-color:#93C5FD;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,0.08)}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;color:#94A3B8}
+.toolbar-btn{padding:5px 10px;border-radius:6px;border:1px solid #E2E8F0;background:#fff;font-size:11px;cursor:pointer;font-family:inherit;color:#64748B;transition:all .15s}
+.toolbar-btn:hover{background:#F1F5F9;border-color:#CBD5E1}
+.list{padding:8px 16px;display:flex;flex-direction:column;gap:4px}
+.info-banner{padding:8px 12px;border-radius:8px;font-size:11px;line-height:1.6;margin-bottom:4px}
+.card{background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ECEEF1;transition:all .2s}
+.card.open{border-color:#D6DAE0;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-head{padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;user-select:none}
+.card-head:hover{background:#FAFBFC}
+.card-no{border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;min-width:28px;text-align:center;color:#fff}
+.card-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:13px;color:#0F172A}
+.card-sub{font-size:10px;color:#94A3B8}
+.chip{font-size:11px;padding:2px 7px;border-radius:5px;font-weight:600;white-space:nowrap;display:inline-block}
+.arrow-toggle{font-size:11px;color:#94A3B8;transition:transform .2s;display:inline-block}
+.card.open .arrow-toggle{transform:rotate(180deg)}
+.card-body{border-top:1px solid #E2E8F0;padding:8px 12px;display:none}
+.card.open .card-body{display:block}
+.mapping-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.mapping-arrow{font-size:13px;flex-shrink:0}
+.mapping-target{border-radius:6px;padding:4px 8px;flex:1;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.warn-badge{background:#FEF2F2;color:#DC2626;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:800}
+.note{margin-top:5px;padding:4px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:5px;font-size:10px;color:#64748B}
+/* Data source styles */
+.folder-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.folder-meta{font-size:9px;color:#94A3B8}
+.folder-count{text-align:center}
+.folder-count-num{font-size:15px;font-weight:800}
+.folder-count-label{font-size:7px;color:#94A3B8}
+.file-section{padding:8px 12px;border-bottom:1px dashed #E2E8F0}
+.file-section:last-child{border-bottom:none}
+.file-header{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.file-name{font-size:12px;font-weight:700;color:#1E293B}
+.extract-row{margin-bottom:6px;border-radius:8px;border:1px solid #E2E8F0;overflow:hidden}
+.extract-top{display:flex;align-items:center;gap:0}
+.extract-col{background:#FEF9C3;border-right:2px solid #FACC15;padding:5px 8px;font-weight:800;color:#713F12;white-space:normal;width:25%;max-width:25%;min-width:60px;font-family:monospace;font-size:10px;display:flex;align-items:center;align-self:stretch;word-break:break-all;flex-shrink:0;line-height:1.4}
+.extract-dest{flex:1;padding:5px 10px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:4px}
+.extract-logic{padding:3px 10px 5px;font-size:10px;color:#64748B;background:#F8FAFC;border-top:1px dashed #E2E8F0;line-height:1.4}
+.file-note{margin-top:3px;margin-left:0;padding:3px 8px;border-radius:5px;font-size:10px;display:flex;align-items:flex-start;gap:4px;line-height:1.4}
+.file-note.note-delay{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.file-note.note-struct{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF}
+.file-note.note-rule{background:#F5F3FF;border:1px solid #DDD6FE;color:#5B21B6}
+.file-note.note-exclude{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412}
+.file-note.note-tip{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.file-note.note-remark{background:#F8FAFC;border:1px solid #E2E8F0;color:#475569}
+.bakuraku-toggle{font-size:10px;font-weight:700;color:#7C3AED;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:5px;padding:4px 10px;cursor:pointer;user-select:none;margin-top:2px;transition:background .15s}
+.bakuraku-toggle:hover{background:#EDE9FE}
+.nav-return-btn{position:sticky;top:0;z-index:10;background:#F8FAFC;color:#64748B;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;margin-bottom:8px;border:1px solid #E2E8F0;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.nav-return-btn:hover{background:#F1F5F9;color:#334155;border-color:#CBD5E1}
+.dg-open-btn{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;text-decoration:none;color:#1E293B;transition:all .15s}
+.dg-open-btn:hover{background:#F8FAFC;border-color:#CBD5E1}
+.dg-card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;overflow:hidden}
+.dg-card-head{padding:8px 14px;font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #F1F5F9}
+.dg-card-body{padding:10px 14px}
+.dg-manual-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F8FAFC}
+.dg-manual-row:last-child{border-bottom:none}
+.dg-manual-row.placeholder{opacity:.45}
+.dg-chat{display:flex;flex-direction:column;min-height:400px}
+.dg-chat-msgs{flex:1;overflow-y:auto;padding:14px;max-height:320px}
+.dg-chat-tags{display:flex;gap:5px;padding:8px 14px;flex-wrap:wrap;border-top:1px solid #F1F5F9}
+.dg-chat-input{display:flex;gap:6px;padding:10px 14px;border-top:1px solid #E2E8F0;background:#F8FAFC}
+.bakuraku-detail{margin-top:2px}
+.delay-badge{display:inline-block;background:#FEF2F2;color:#DC2626;font-size:8px;padding:1px 5px;border-radius:3px;font-weight:800;white-space:nowrap;margin-left:4px;vertical-align:middle;border:1px solid #FECACA}
+.badge-tax{display:inline-block;background:#F0F9FF;color:#0369A1;font-size:8px;padding:1px 5px;border-radius:3px;font-weight:800;white-space:nowrap;margin-left:4px;vertical-align:middle;border:1px solid #BAE6FD}
+.badge-rule{display:inline-block;background:#F5F3FF;color:#7C3AED;font-size:8px;padding:1px 5px;border-radius:3px;font-weight:800;white-space:nowrap;margin-left:4px;vertical-align:middle;border:1px solid #DDD6FE}
+.cc-badge{display:inline-block;background:#EFF6FF;color:#1D4ED8;font-size:8px;padding:1px 5px;border-radius:3px;font-weight:800;white-space:nowrap;margin-left:4px;vertical-align:middle;border:1px solid #BFDBFE}
+.ds-legend{display:flex;gap:12px;align-items:center;padding:6px 16px;font-size:10px;color:#64748B;border-bottom:1px solid #F1F5F9;flex-wrap:wrap}
+.ds-legend-item{display:flex;align-items:center;gap:3px}
+.ds-legend-swatch{width:12px;height:6px;border-radius:2px}
+/* PL section */
+.section-header{display:flex;align-items:center;gap:5px;margin-bottom:4px;position:sticky;top:0;background:#fff;padding:6px 0;z-index:5}
+.section-bar{width:3px;height:16px;border-radius:2px}
+.section-title{font-size:14px;font-weight:800;margin:0}
+.section-count{font-size:10px;color:#94A3B8}
+.source-block{background:#F8FAFC;border-radius:6px;padding:6px 8px;border:1px solid #E2E8F0;margin-bottom:4px}
+.source-file{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.source-file-name{font-size:11px;font-weight:700;color:#1E293B}
+.source-col-text{font-size:10px;color:#475569;font-family:monospace;padding:4px 0;line-height:1.4}
+.empty-state{text-align:center;padding:40px;color:#94A3B8}
+.empty-icon{font-size:28px}
+.empty-text{font-size:12px;margin-top:4px}
+.drive-link{font-size:10px;font-weight:600;color:#3B82F6;background:#EFF6FF;padding:3px 8px;border-radius:5px;text-decoration:none;white-space:nowrap;border:1px solid #BFDBFE;transition:all .15s;flex-shrink:0;cursor:pointer;user-select:none}
+.drive-link:hover{background:#DBEAFE;color:#1D4ED8}
+.gss-link{font-size:10px;font-weight:600;color:#059669;background:#ECFDF5;padding:3px 8px;border-radius:5px;text-decoration:none;white-space:nowrap;border:1px solid #A7F3D0;transition:all .15s;flex-shrink:0;cursor:pointer;user-select:none}
+.gss-link:hover{background:#D1FAE5;color:#047857}
+.gss-copied{background:#DCFCE7!important;color:#166534!important;border-color:#86EFAC!important}
+.gas-link{font-size:10px;font-weight:600;color:#7C3AED;background:#F5F3FF;padding:3px 8px;border-radius:5px;text-decoration:none;white-space:nowrap;border:1px solid #DDD6FE;transition:all .15s;flex-shrink:0;cursor:pointer;user-select:none}
+.gas-link:hover{background:#EDE9FE;color:#6D28D9}
+.gas-copied{background:#DCFCE7!important;color:#166534!important;border-color:#86EFAC!important}
+.drive-copied{background:#DCFCE7!important;color:#166534!important;border-color:#86EFAC!important}
+/* Editor mode */
+.adv-edit-bar{display:flex;gap:4px;margin-top:8px;justify-content:flex-end}
+.adv-edit-btn{font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid #E2E8F0;background:#fff;cursor:pointer;font-family:inherit;color:#64748B;transition:all .15s}
+.adv-edit-btn:hover{background:#F1F5F9}
+.adv-edit-btn.danger{color:#DC2626;border-color:#FECACA}
+.adv-edit-btn.danger:hover{background:#FEF2F2}
+.adv-edit-btn.primary{color:#fff;background:#3B82F6;border-color:#3B82F6}
+.adv-edit-btn.primary:hover{background:#2563EB}
+.edit-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:2000;display:flex;align-items:center;justify-content:center}
+.edit-modal{background:#fff;border-radius:12px;width:560px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.15);padding:24px}
+.edit-modal h3{font-size:15px;font-weight:800;margin-bottom:16px;color:#0F172A}
+.edit-field{margin-bottom:12px}
+.edit-field label{display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px}
+.edit-field input,.edit-field textarea,.edit-field select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid #E2E8F0;font-size:12px;font-family:inherit;outline:none;transition:border-color .2s}
+.edit-field input:focus,.edit-field textarea:focus{border-color:#93C5FD}
+.edit-field textarea{min-height:60px;resize:vertical}
+.edit-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #F1F5F9}
+.global-edit-btn{font-size:10px;font-weight:600;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.5);cursor:pointer;font-family:inherit;transition:all .2s}
+.global-edit-btn:hover{border-color:rgba(255,255,255,0.4);color:rgba(255,255,255,0.8)}
+.global-edit-btn.active{background:#3B82F6;color:#fff;border-color:#3B82F6}
+body.edit-mode .card-head:hover .inline-edit-hint{opacity:1}
+.inline-edit-hint{font-size:9px;color:#3B82F6;opacity:0;transition:opacity .15s;flex-shrink:0}
+.editable-highlight{position:relative}
+body.edit-mode .editable-highlight:hover{outline:1.5px dashed #93C5FD;outline-offset:2px;border-radius:4px;cursor:pointer}
+/* Flow */
+.flow-phase{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:16px;margin-bottom:0}
+.flow-phase-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.flow-phase-badge{background:#0F172A;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;white-space:nowrap}
+.flow-phase-title{font-size:14px;font-weight:800;color:#0F172A}
+.flow-phase-timing{font-size:10px;color:#94A3B8;margin-top:1px}
+.flow-steps{display:flex;flex-direction:column;gap:0;margin-left:8px}
+.flow-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.flow-step-num{width:26px;height:26px;border-radius:50%;background:#EFF6FF;color:#2563EB;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #BFDBFE}
+.flow-step-body{flex:1;min-width:0}
+.flow-step-task{font-size:12px;font-weight:700;color:#1E293B}
+.flow-step-detail{font-size:11px;color:#64748B;margin-top:2px;line-height:1.5}
+.flow-step-link{font-size:10px;color:#3B82F6;text-decoration:none;margin-top:3px;display:inline-block}
+.flow-step-link:hover{text-decoration:underline}
+.flow-connector{width:1.5px;height:12px;background:#CBD5E1;margin-left:12px}
+.flow-phase-connector{width:2px;height:20px;background:#94A3B8;margin:0 auto;border-radius:1px}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner" style="display:flex;align-items:flex-end;justify-content:space-between">
+    <div>
+      <div class="header-sub">SBC Medical Group</div>
+      <h1>院別収支ロジックマップ</h1>
+      <div class="header-desc">新院別収支表の構成と算出ロジック</div>
+    </div>
+    <button class="global-edit-btn" id="globalEditBtn" onclick="toggleGlobalEdit()">編集モード</button>
+  </div>
+</div>
+
+<div class="main-tabs-wrap">
+<div class="main-tabs" id="mainTabs">
+  <button class="main-tab active" data-page="pltree">PL構造</button>
+  <button class="main-tab" data-page="datasource">データソース</button>
+  <button class="main-tab" data-page="mapping">マッピング</button>
+  <button class="main-tab" data-page="advanced">高度化ポイント</button>
+  <button class="main-tab" data-page="flow">作成フロー</button>
+  <button class="main-tab" data-page="diggle">DIGGLE</button>
+</div>
+</div>
+
+<div class="content-area">
+  <!-- ==================== データソース ==================== -->
+  <div id="page-datasource" class="page-content" style="display:none">
+    <div class="sub-bar">
+      <div class="sub-tabs" id="dsTabs">
+        <button class="sub-tab active" data-sub="folder">フォルダ→費目</button>
+        <button class="sub-tab" data-sub="pl">費目→ソース</button>
+      </div>
+      <div class="search-wrap"><span class="search-icon">⌕</span><input id="dsSearch" placeholder="検索…"></div>
+      <button class="toolbar-btn" id="dsExpandAll">すべて展開</button>
+      <button class="toolbar-btn" id="dsCollapseAll">閉じる</button>
+    </div>
+    <div class="list" id="dsList"></div>
+  </div>
+
+  <!-- ==================== マッピング ==================== -->
+  <div id="page-mapping" class="page-content" style="display:none">
+    <div class="sub-bar">
+      <div class="sub-tabs" id="mpTabs">
+        <button class="sub-tab active" data-sub="boss">社長原本→新</button>
+        <button class="sub-tab" data-sub="old">旧→新</button>
+      </div>
+      <div class="search-wrap"><span class="search-icon">⌕</span><input id="mpSearch" placeholder="検索…"></div>
+      <button class="toolbar-btn" id="mpExpandAll">すべて展開</button>
+      <button class="toolbar-btn" id="mpCollapseAll">閉じる</button>
+    </div>
+    <div class="list" id="mpList"></div>
+  </div>
+
+  <!-- ===== 高度化ポイント ===== -->
+  <div id="page-advanced" class="page-content" style="display:none">
+    <div class="sub-bar" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:12px;font-weight:700;color:#475569">バージョン</span>
+        <div class="sub-tabs" id="advVerTabs">
+          <button class="sub-tab active" data-ver="1" onclick="switchAdvVer(1)">v1 — 初版</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10px;color:#94A3B8" id="advVerDate">2026.03 作成</span>
+      </div>
+    </div>
+    <div style="padding:16px 20px" id="advList"></div>
+  </div>
+
+  <div id="page-pltree" class="page-content">
+    <div style="padding:16px 20px" id="plTreeArea"></div>
+  </div>
+
+  <div id="page-flow" class="page-content" style="display:none">
+    <div style="padding:16px 20px" id="flowArea"></div>
+  </div>
+
+  <div id="page-diggle" class="page-content" style="display:none">
+    <div style="padding:16px 20px" id="diggleArea"></div>
+  </div>
+
+</div>
+
+<style>
+.adv-intro{padding:18px 22px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:12px;color:#fff;margin-bottom:16px}
+.adv-intro h2{font-size:16px;font-weight:900;margin-bottom:6px}
+.adv-intro p{font-size:12px;opacity:0.7;line-height:1.8}
+.adv-section{margin-bottom:12px;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;transition:box-shadow .2s}
+.adv-section.open{box-shadow:0 4px 16px #0002}
+.adv-section-head{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;user-select:none;transition:background .15s}
+.adv-section-head:hover{background:#F8FAFC}
+.adv-section-num{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0}
+.adv-section-info{flex:1;min-width:0}
+.adv-section-title{font-size:14px;font-weight:800;color:#0F172A}
+.adv-section-desc{font-size:11px;color:#64748B;margin-top:3px;line-height:1.6}
+.adv-section-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;white-space:nowrap}
+.adv-arrow2{font-size:12px;color:#94A3B8;transition:transform .2s}
+.adv-section.open .adv-arrow2{transform:rotate(180deg)}
+.adv-body{display:none;border-top:1px solid #E2E8F0;padding:16px 18px}
+.adv-section.open .adv-body{display:block}
+.adv-card{border:1px solid #E2E8F0;border-radius:10px;padding:16px 18px;margin-bottom:12px;background:#FAFBFC;transition:border-color .2s}
+.adv-card:hover{border-color:#CBD5E1}
+.adv-card:last-child{margin-bottom:0}
+.adv-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.adv-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.adv-card-title{font-size:13px;font-weight:700;color:#0F172A}
+.adv-card-body{font-size:12px;color:#475569;line-height:1.9;margin-bottom:12px}
+.adv-compare{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0;font-size:11px;margin-bottom:10px}
+.adv-compare-side{flex:1;padding:12px 14px}
+.adv-compare-before{background:#FEF2F2;color:#991B1B}
+.adv-compare-after{background:#F0FDF4;color:#166534}
+.adv-compare-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;opacity:0.6}
+.adv-compare-text{line-height:1.8}
+.adv-compare-arrow{display:flex;align-items:center;justify-content:center;width:28px;background:#F8FAFC;color:#94A3B8;font-size:14px;flex-shrink:0;border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0}
+.adv-rule-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:4px;margin-top:8px}
+.adv-rule-cell{text-align:center;padding:5px 4px;border-radius:6px;font-size:9px;font-weight:700;line-height:1.3}
+.adv-rule-ok{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.adv-rule-ng{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.adv-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.adv-tag{font-size:10px;padding:3px 9px;border-radius:6px;font-weight:600}
+.adv-impact{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:11px;line-height:1.7;display:flex;align-items:flex-start;gap:6px}
+.adv-impact-high{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.adv-impact-mid{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.adv-impact-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF}
+
+/* ========== PL Tree ========== */
+.plt-header{padding:16px 20px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:12px;color:#fff;margin-bottom:16px}
+.plt-header h2{font-size:16px;font-weight:900;margin:0 0 4px}
+.plt-header p{font-size:10px;opacity:0.6;margin:0}
+.plt-section{margin-bottom:12px}
+.plt-sec-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;cursor:pointer;transition:background .15s;user-select:none}
+.plt-sec-head:hover{background:#F8FAFC}
+.plt-sec-bar{width:4px;height:20px;border-radius:2px}
+.plt-sec-title{font-size:14px;font-weight:900;flex:1}
+.plt-sec-count{font-size:10px;color:#94A3B8;background:#F1F5F9;padding:2px 8px;border-radius:4px}
+.plt-sec-arrow{font-size:11px;color:#94A3B8;transition:transform .2s}
+.plt-section.open .plt-sec-arrow{transform:rotate(180deg)}
+.plt-sec-body{display:none;padding:0 0 0 24px}
+.plt-section.open .plt-sec-body{display:block}
+.plt-item{display:flex;align-items:center;gap:0;margin:2px 0;position:relative}
+.plt-branch{width:20px;height:100%;display:flex;align-items:center;justify-content:flex-end;flex-shrink:0;position:relative}
+.plt-branch::before{content:'';position:absolute;left:8px;top:0;bottom:50%;width:1px;border-left:1px solid #CBD5E1}
+.plt-branch::after{content:'';position:absolute;left:8px;top:50%;width:11px;height:0;border-top:1px solid #CBD5E1}
+.plt-item:last-child .plt-branch::before{bottom:50%}
+.plt-item:first-child .plt-branch::before{top:50%}
+.plt-leaf{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px;transition:background .1s;cursor:default;border:1px solid transparent}
+.plt-leaf:hover{border-color:#E2E8F0;background:#F8FAFC}
+.plt-leaf-name{display:flex;align-items:center;gap:5px}
+.plt-leaf-src{font-size:8px;color:#94A3B8;font-weight:400;white-space:nowrap}
+.plt-sub{margin-left:20px}
+.plt-sub-title{font-size:10px;font-weight:800;color:#64748B;padding:6px 0 2px 12px;display:flex;align-items:center;gap:5px}
+.plt-sub-title::before{content:'';width:8px;height:1px;background:#CBD5E1}
+.plt-calc{display:flex;align-items:center;gap:4px;margin:8px 0 4px 24px;font-size:10px;color:#64748B;font-weight:700}
+.plt-calc-op{font-size:12px;font-weight:900;width:18px;text-align:center}
+.plt-calc-label{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700}
+/* ========== FAQ Chat ========== */
+.chat-fab{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;background:#0F172A;color:#fff;border:none;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s}
+.chat-fab:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+.chat-fab.hide{display:none}
+.chat-panel{position:fixed;bottom:24px;right:24px;width:400px;height:560px;background:#fff;border-radius:12px;box-shadow:0 12px 48px rgba(0,0,0,0.12);z-index:1001;display:none;flex-direction:column;overflow:hidden;border:1px solid #E8EAED}
+.chat-panel.open{display:flex}
+.chat-hd{background:#0F172A;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.chat-hd-icon{font-size:16px;opacity:0.6}
+.chat-hd-body{flex:1}
+.chat-hd-title{font-size:13px;font-weight:800}
+.chat-hd-sub{font-size:9px;opacity:0.6}
+.chat-hd-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;opacity:0.7;padding:4px}
+.chat-hd-close:hover{opacity:1}
+.chat-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F8FAFC}
+.chat-msg{max-width:90%;padding:10px 14px;border-radius:14px;font-size:11px;line-height:1.7;word-break:break-word}
+.chat-msg.bot{align-self:flex-start;background:#fff;border:1px solid #E2E8F0;color:#1E293B;border-bottom-left-radius:4px}
+.chat-msg.user{align-self:flex-end;background:#0F172A;color:#fff;border-bottom-right-radius:4px}
+.chat-msg b,.chat-msg strong{color:#3B82F6}
+.chat-msg.user b,.chat-msg.user strong{color:#93C5FD}
+.chat-result-card{background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;padding:8px 10px;margin:4px 0;font-size:10px;line-height:1.6}
+.chat-result-card .cr-title{font-weight:800;color:#0369A1;font-size:11px;margin-bottom:2px}
+.chat-result-card .cr-row{display:flex;gap:4px;margin:2px 0}
+.chat-result-card .cr-label{color:#64748B;min-width:50px;flex-shrink:0}
+.chat-result-card .cr-val{color:#1E293B;font-weight:600}
+.chat-tags{display:flex;flex-wrap:wrap;gap:4px;padding:0 12px 8px}
+.chat-tag{padding:4px 10px;border-radius:8px;border:1px solid #DBEAFE;background:#EFF6FF;color:#1D4ED8;font-size:9px;cursor:pointer;font-family:inherit;transition:all .15s}
+.chat-tag:hover{background:#DBEAFE;border-color:#93C5FD}
+.chat-foot{padding:10px 12px;border-top:1px solid #E2E8F0;display:flex;gap:8px;background:#fff;flex-shrink:0}
+.chat-in{flex:1;padding:8px 12px;border-radius:10px;border:1px solid #E2E8F0;font-size:11px;font-family:inherit;outline:none;resize:none;max-height:60px;line-height:1.4}
+.chat-in:focus{border-color:#93C5FD}
+.chat-btn{width:36px;height:36px;border-radius:8px;background:#0F172A;color:#fff;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-btn:hover{opacity:0.85}
+.chat-noresult{color:#94A3B8;font-size:10px;text-align:center;padding:8px}
+@media(max-width:500px){.chat-panel{width:calc(100vw - 16px);height:calc(100vh - 80px);right:8px;bottom:8px;border-radius:12px}}
+</style>
+
+<script>
+// ========== DATA ==========
+const F=[
+{id:"01a",n:"01人件費_給与集計",w:"大園さん",t:"3日16時",f:[{n:"給与集計（大園さん）",ty:"CSV",e:[{c:"M列「給与+経費移動分」",v:"部門コード(C列)で院を特定し計上",d:"直接経費＞給与"},{c:"N列「社宅・寮費」",v:"部門コード(C列)で院を特定し計上",d:"直接経費＞社宅家賃"},{c:"F列「報奨金」",v:"部門コード(C列)で院を特定し計上",d:"直接経費＞報奨金"},{c:"J列「ドクター合計」",v:"部門コード(C列)で院を特定し計上",d:"直接経費＞歩合"},{c:"O列「社保合計額」",v:"部門コード(C列)で院を特定し計上",d:"直接経費＞法定福利費"}],nt:"R5行がヘッダー。全体Drは除外が必要"}]},
+{id:"01b",n:"01人件費_経費移動",w:"久さん",t:"3日16時以降",f:[{n:"出向分経費移動スプシ",ty:"CSV",e:[{c:"D列「総支給額」＋E列「社保合計額」",v:"院ID(B列)で院を特定し±金額を計上",d:"直接経費＞給与（加減算）"}]}]},
+{id:"01c",n:"01人件費_賞与集計",w:"岩田さん",t:"7月/12月",f:[{n:"賞与集計（岩田さん）",ty:"CSV",e:[{c:"C,G,K,O列「6分の1」",v:"6分の1の金額を毎月均等計上",d:"直接経費＞賞与"}],nt:"R3行がヘッダー。1~6月→計上月1月(12月分)の6分の1。7~12月→計上月7月(7月分)の6分の1"}]},
+{id:"02a",n:"02共通人件費_勤怠実績",w:"久さん",t:"3日18時頃",f:[{n:"本部人件費集計ファイル",ty:"CSV",e:[{c:"F列「全体割人件費合計」",v:"院別の値を直接計上",d:"間接経費＞共通人件費"}],nt:"R4行がヘッダー。業態(B列)/院名(D列)/診療総額(E列)で院を特定"}]},
+{id:"02b",n:"02共通人件費_全体経費",w:"久さん",t:"3日16時以降",f:[{n:"勤怠実績計算ファイル",ty:"XLSX",e:[{c:"D列「金額」",v:"B列「番号」(=按分ルール番号)に応じた業態へ売上比で配賦",d:"間接経費＞共通人件費（全体経費）"}]}]},
+{id:"03",n:"03広告宣伝費",w:"吉岡さん",t:"2~3日午前",f:[{n:"広告費集計",ty:"CSV",e:[{c:"J列「直接費」",v:"院別の値を直接計上",d:"直接経費＞広告宣伝費 各院別"},{c:"L列「PPC」",v:"値を直接計上",d:"間接経費＞共通広告＞PPC"},{c:"M列「TVCM」",v:"値を直接計上",d:"間接経費＞共通広告＞TVCM"},{c:"N列「電車広告」",v:"値を直接計上",d:"間接経費＞共通広告＞電車広告"},{c:"O列「その他」",v:"値を直接計上",d:"間接経費＞共通広告＞その他"}]}]},
+{id:"04a",n:"04通信費_電話代（オリックス）",w:"山﨑さん",t:"前月末",f:[{n:"オリックス請求書",ty:"CSV",e:[{c:"C列「請求金額」−D列「うち消費税」",v:"部門名(A列)×部門コード(B列)で院を特定し計上",d:"直接/間接＞通信費＞電話代"}],nt:"R11-12行がヘッダー。CC分あり。間接：部門コード800代900代、部門名に本部/事務局/豊洲を含む→100_SBCMGへ按分"}]},
+{id:"04b",n:"04通信費_電話代（SB/ドコモ/楽天）",w:"情シス小松さん",t:"前月10日頃",f:[{n:"ソフトバンク請求書",ty:"CSV",e:[{c:"O列「請求額計」",v:"部署名(2)で院を特定。空欄の場合は部署名(4)を使用",d:"直接/間接＞通信費＞電話代"}],nt:"【1ヶ月遅れ】間接：部署名(2)(4)どちらも空白→100_SBCMGへ按分"},{n:"ドコモ請求書",ty:"CSV",e:[{c:"I列「ご利用金額合計」−P列「消費税等相当額」",v:"E列「第2階層部門コード」で院を特定し計上",d:"直接/間接＞通信費＞電話代"}],nt:"間接：第1階層=SBCメディカル*/SBCマーケ* かつ 第2階層≠*コールセンター*→院ID=94へ按分"},{n:"楽天請求書",ty:"CSV",e:[{c:"G列「金額(税抜)」",v:"L列「医院ID」で院を特定。「小計」行および「通話料(国内)」は除外",d:"直接/間接＞通信費＞電話代"}]}]},
+{id:"04c",n:"04通信費_アカウント使用料",w:"情シス町田さん",t:"前月末",f:[{n:"アカウント使用料台帳",ty:"XLSX",e:[{c:"E列「月額金額」",v:"医院ID別に直接計上",d:"直接/間接＞通信費＞アカウント使用料"}],nt:"R7行がヘッダー。CC分あり。間接：全体分は按分ルール1で按分"}]},
+{id:"04d",n:"04通信費_内線使用料",w:"情シス町田さん",t:"毎年2月",f:[{n:"内線使用料台帳",ty:"CSV",e:[{c:"E列の金額",v:"年1回(計上月2月)更新の金額を12ヶ月均等計上",d:"直接/間接＞通信費＞内線使用料"}],nt:"間接：全体分は按分ルール1で按分"}]},
+{id:"04e",n:"04通信費_勘定奉行SBCPJ",w:"情シス",t:"2日",f:[{n:"勘定奉行「SBCPJ」",ty:"CSV",e:[{c:"D列「借方」",v:"「その他」行を除く借方合計 − 直接アカウント使用料 − 直接内線使用料",d:"間接経費＞共通通信費＞システム運用費"}],nt:"【1か月遅れ】按分ルール1で按分"}]},
+{id:"05",n:"05機器リース",w:"久さん",t:"2日",f:[{n:"機器リース台帳",ty:"CSV",e:[{c:"G列「リース代」(税抜)",v:"院名(B列)×TWE院ID(D列)で院を特定し計上",d:"直接経費＞機器リース料"}],nt:"H列=税込み（使用しない）"}]},
+{id:"06a",n:"06雑費_バクラクデータ（償却判断済）",w:"社長",t:"2日0時",f:[{n:"バクラク（償却判断済）",ty:"CSV",e:[{c:"科目コード=718「広告宣伝費」",v:"各院分→直接経費、全体分→按分ルール2で間接配賦",d:"直接＞広告/間接＞共通広告"},{c:"科目コード=725or摘要「☆水道光熱費☆」",v:"各院分→直接経費。摘要に「ヘルプ」「マンスリー」を含む場合は雑費へ振替",d:"直接＞水道光熱費/間接＞共通施設"},{c:"科目コード=742or摘要「☆家賃☆」「☆地代家賃☆」",v:"各院分→直接経費。摘要に「ヘルプ」「マンスリー」を含む場合は雑費へ振替",d:"直接＞地代家賃/間接＞共通施設"},{c:"「採用費」科目コード=718",v:"摘要「新卒」→ルール4、「☆AGA☆」等→業態指定。基本→ルール2",d:"直接＞採用費/間接＞共通採用費"},{c:"「消耗品費」「医療消耗器具備品費」「医薬品費」「診療材料費」",v:"摘要に「工事」を含むものは除外。開院費用は12ヶ月分割",d:"直接＞雑費＞TWE大口経費分"},{c:"雑費性質の勘定科目（他ロジックに非該当）",v:"＋100万以下の后相費 ＋100万以下の工事費 ＋摘要「ヘルプ」「マンスリー」 −摘要「入金機オンラインシステム」",d:"直接＞雑費＞バクラク雑費"},{c:"摘要「入金機オンラインシステム」",v:"摘要に該当する行を抽出",d:"直接＞雑費＞入金機"},{c:"「代理人原価」",v:"取引先「タナカジマル」→ルール3、その他→ルール1",d:"間接＞共通通信費＞システム運用費"},{c:"「建設仮勘定」摘要「工事」含む＋100万超",v:"100万超を36ヶ月分割計上",d:"直接＞減価償却費"},{c:"「支払手数料」(補助科目コード12)",v:"直接計上",d:"直接＞減価償却費"}],nt:"【バクラク共通ルール】1.除外科目(借方)＝184立替金/243敷金保証金/251預託金/314未払金/316従業員預り金/511自由診療売上/552仕入PJ/121普通預金/101現金/166売掛金/312買掛金/185未収入金/186仮払金/992バクラク諸口/991家賃諸口（※諸口はコードに関わらず除外）。2.金額＝税抜がある場合は税抜の借方−貸方、税込のみの場合は(借方−貸方)÷1.1。3.償却フラグ=×は除外。4.計上月＝{UpdatedDate}を−1ヶ月。5.勘定科目＝{借方勘定科目コード}。6.部門＝{借方部門コード}。7.転換院は転換前の数値を削除。8.閉院した院は間接部門へ振替。9.間接部門＝75,92,94,96,SKビル,102,158,159,990（株式会社側の除外部門895/982/47/901/890含む）＋医療法人全体割対象部門＝75培養室/102西日本スキャンセンタ/158研修豊洲/0(湘/孝/菜/愛/樹/リ/風全体)/999SBC全体。10.直接費・間接費・CC経費の判定。11.CC例外処理＝勘定科目がマネジメント原価 かつ 摘要に☆地代家賃☆/☆家賃☆/☆水道光熱費☆を含む場合はCC経費。12.償却＝(1)B列に値がある場合は期間償却、(2)摘要に「新卒」→04-03年度で償却、(3)減価償却は一律3年、(4)后相は翌月から100万ずつ償却。13.両国地代＝部門ごとに10:72:10:8で按分"}]},
+{id:"06b",n:"06雑費_小口バクラク分",w:"固定資産G",t:"前月16日/末",f:[{n:"バクラク経費精算データ",ty:"CSV",e:[{c:"{CSJS313}(金額)",v:"÷1.1で税抜換算。計上月={CSJS005}、部門={CSJS200}で院を特定",d:"直接/間接＞雑費＞小口経費"}],nt:"間接：全体分は部門に応じた按分ルール（上場人材は除外）"}]},
+{id:"06c",n:"06雑費_小口現金分",w:"固定資産G",t:"1日",f:[{n:"東日本西日本台帳",ty:"CSV",e:[{c:"I列「支払金額」",v:"÷1.1で税抜換算。B列「全欄」で院を特定",d:"直接/間接＞雑費＞小口経費"}],nt:"科目No「102」かつ補助科目コード「s」は除外。上場人材は除外。間接：全体分は部門に応じた按分ルールで按分"}]},
+{id:"06d",n:"06雑費_バクラクカード",w:"戸叶さん",t:"前月中",f:[{n:"バクラクカード",ty:"CSV",e:[{c:"{CSJS313}(金額)",v:"÷1.1で税抜換算。計上月={CSJS005}、部門={CSJS200}で院を特定",d:"直接/間接＞雑費＞バクラクカード"}],nt:"【1か月遅れ】間接：全体分は按分ルール2で按分"}]},
+{id:"06e",n:"06雑費_アマゾン",w:"斎藤綾香さん",t:"前月末",f:[{n:"Amazon台帳",ty:"CSV",e:[{c:"E列「金額」",v:"÷1.1で税抜換算。計上月=A列「日付」+1ヶ月。院コード(C列)で院を特定",d:"直接/間接＞雑費＞Amazon費"}],nt:"【1ヶ月遅れ】間接：全体分は按分ルール2"}]},
+{id:"06f",n:"06雑費_アスクル",w:"斎藤綾香さん",t:"前月末",f:[{n:"アスクル台帳",ty:"CSV",e:[{c:"E列「金額」",v:"÷1.1で税抜換算。計上月=A列「日付」+1ヶ月。院コード(C列)で院を特定",d:"直接/間接＞雑費＞アスクル費"}],nt:"【1ヶ月遅れ】"}]},
+{id:"06g",n:"06雑費_ボディアーキ",w:"久さん",t:"2日",f:[{n:"ボディーアーキ集計ファイル",ty:"CSV",e:[{c:"F列「小計/売上金額」",v:"I列=「○」の行のみ対象、マイナス計上。医院ID(B列)で院を特定",d:"直接経費＞雑費＞ボディアーキ"}],nt:"【1か月遅れ】"}]},
+{id:"06h",n:"06雑費_PC消耗品",w:"情シス品田さん",t:"前月中",f:[{n:"情シスPC消耗品管理台帳",ty:"CSV",e:[{c:"「請求単価」列",v:"{主に利用するクリニック・部署}で院を特定。仮出荷は除外",d:"直接/間接＞雑費＞PC消耗品費"}],nt:"【1か月遅れ】間接：全体分は按分ルール2で按分"},{n:"情シスPC消耗品備品台帳",ty:"CSV",e:[{c:"「請求単価」列",v:"{主に利用するクリニック・部署}で院を特定。カテゴリ+仕入業者名=PCFBJは除外",d:"直接/間接＞雑費＞PC消耗品費"}]}]},
+{id:"06i",n:"06雑費_麻酔科人件費",w:"大園さん",t:"前月中",f:[{n:"麻酔科人件費スプシ",ty:"CSV",e:[{c:"G列「麻酔科医報酬（税込）」",v:"C列「クリニック」で院を特定し計上",d:"直接経費＞雑費＞麻酔科委託費"}],nt:"【1か月遅れ】R2行がヘッダー。E列「税抜」もあるがG列「税込」を使用"}]},
+{id:"06j1",n:"06雑費_香典",w:"久さん",t:"2日",f:[{n:"香典台帳",ty:"CSV",e:[{c:"J列「香典」(金額)",v:"院ID(D列)×所属(E列)で院を特定。除外対象者は対象外",d:"直接/間接＞雑費＞香典"}],nt:"間接：全体分は按分ルール2"}]},
+{id:"06j2",n:"06雑費_健康診断料金",w:"久さん",t:"2日",f:[{n:"健康診断料スプシ",ty:"CSV",e:[{c:"D列「健康診断料（金額）」",v:"÷1.1で税抜換算。院ID(B列)で院を特定。実績合計は両国健診の診療総額に加算",d:"直接経費＞雑費＞愛恵会"}]}]},
+{id:"06j3",n:"06雑費_ワクチン代金",w:"久さん",t:"2日",f:[{n:"ワクチンファイル",ty:"CSV",e:[{c:"G列「金額」",v:"÷1.1で税抜換算。院名(B列)×TWE院ID(D列)で院を特定",d:"直接経費＞雑費＞ワクチン"}]}]},
+{id:"06j4",n:"06雑費_経費移動",w:"久さん",t:"2日",f:[{n:"経費移動スプシ",ty:"CSV",e:[{c:"D列「経費移動」",v:"÷1.1で税抜換算。院ID(B列)で院を特定",d:"直接経費＞雑費＞経費移動"}]}]},
+{id:"07",n:"07CC件数",w:"場々さん/CC",t:"1日/前月末",f:[{n:"電話件数データ＋メール件数スプシ",ty:"CSV",e:[{c:"電話件数＋メール件数×0.4",v:"CC人件費＝全体経費集計のCC金額を件数按分。CC経費＝CC発生費用全額を件数按分",d:"直接経費＞CC人件費・CC経費"}],nt:"閉院・転換前の院・両国の件数は含めない"}]},
+{id:"08",n:"08減価償却費",w:"ー",t:"ー",f:[{n:"償却管理ファイル＋バクラク",ty:"CSV",e:[{c:"各院列×償却項目行",v:"2025/10以前の償却残 ＋ 2025/11～当月の償却残 ＋ バクラク「建設仮勘定」(摘要「工事」含む＋100万超)を36ヶ月分割 ＋「支払手数料」(補助科目コード12)",d:"直接経費＞減価償却費"}]}]},
+{id:"09a",n:"09TWE_試算表★",w:"久さん",t:"3日(人件費後)",f:[{n:"試算表_税抜",ty:"CSV",e:[{c:"「診療総額」行",v:"院別の値を直接計上",d:"売上＞移動後診療総額"},{c:"「物販売上」行",v:"院別の値を直接計上",d:"売上＞うち物販売上"},{c:"「ポイント相殺」行",v:"院別の値を直接計上",d:"売上＞ポイント利用分"},{c:"「仕入」行",v:"院別の値を直接計上",d:"売上原価＞医薬品仕入"},{c:"「輸入品」行",v:"院別の値を直接計上",d:"売上原価＞輸入品仕入"},{c:"「歯科分仕入・消耗品」行",v:"開院費用を12ヶ月分割 ＋ 償却管理ファイルを参照",d:"売上原価＞消耗品仕入"},{c:"「クレジット等手数料」行",v:"院別の値を直接計上",d:"直接経費＞決済手数料"},{c:"「小口現金」行",v:"院別の値を直接計上",d:"直接経費＞雑費＞TWE小口"},{c:"「雑費」行",v:"院別の値を直接計上",d:"直接経費＞雑費＞NS経費"},{c:"「顛末書損害額」行",v:"院別の値を直接計上",d:"直接経費＞雑費＞ロスの料金"},{c:"「前受金」行",v:"院別の値を直接計上",d:"前受金増加額"}],nt:"★行ヘッダー×各院列のCSV★"}]},
+{id:"09b",n:"09TWE_診療総額（返金）",w:"河本さん",t:"2日",f:[{n:"診療総額_税抜",ty:"CSV",e:[{c:"「SBC」「医療法人」の金額",v:"合算し、−{合計額}を按分ルール9で配賦",d:"間接経費＞共通雑費＞返金対応"}],nt:"按分ルール9"}]},
+{id:"10a",n:"10各院経費_両国",w:"両国経理",t:"翌4日",f:[{n:"両国集計",ty:"XLSX",e:[{c:"各費目",v:"地代家賃を10:72:10:8で按分。人件費以外の残額は間接費として配賦",d:"特別＞両国"}]}]},
+{id:"10b",n:"10各院経費_ベトナム",w:"木下さん",t:"前月末",f:[{n:"ベトナム経費",ty:"CSV",e:[{c:"各費目行×月別列",v:"該当月の値を直接計上",d:"特別＞ベトナム"}]}]},
+];
+
+const P=[
+{s:"売上",c:"#059669",i:[{n:"移動後診療総額",r:[{f:"09TWE_試算表",c:"「診療総額」行",l:"直接計上"}]},{n:"うち物販売上",r:[{f:"09TWE_試算表",c:"「物販売上」行",l:"直接計上"}]},{n:"ポイント利用分",r:[{f:"09TWE_試算表",c:"「ポイント相殺」行",l:"直接計上"}]}]},
+{s:"売上原価",c:"#D97706",i:[{n:"医薬品仕入",r:[{f:"09TWE_試算表",c:"「仕入」行",l:"直接計上"}]},{n:"輸入品仕入",r:[{f:"09TWE_試算表",c:"「輸入品」行",l:"直接計上"}]},{n:"消耗品仕入",r:[{f:"09TWE_試算表",c:"「歯科分仕入・消耗品」行",l:"開院費用を12ヶ月分割＋償却管理ファイル参照"}]}]},
+{s:"直接経費",c:"#2563EB",i:[{n:"給与",r:[{f:"01給与集計",c:"M列「給与+経費移動分」",l:"部門コードで院を特定し計上"},{f:"01経費移動",c:"D列「総支給額」＋E列「社保合計額」",l:"院ID(B列)で院を特定し±計上"}]},{n:"社宅家賃",r:[{f:"01給与集計",c:"N列「社宅・寮費」",l:"部門コードで院を特定し計上"}]},{n:"報奨金",r:[{f:"01給与集計",c:"F列「報奨金」",l:"部門コードで院を特定し計上"}]},{n:"歩合",r:[{f:"01給与集計",c:"J列「ドクター合計」",l:"部門コードで院を特定し計上"}]},{n:"賞与",r:[{f:"01賞与集計",c:"C,G,K,O列「6分の1」",l:"毎月計上"}]},{n:"法定福利費",r:[{f:"01給与集計",c:"O列「社保合計額」",l:"部門コードで院を特定し計上"}]},{n:"広告宣伝費 各院別",r:[{f:"03広告費",c:"J列「直接費」",l:"院別の値を直接計上"},{f:"06バクラク",c:"科目コード=718「広告宣伝費」(各院分)",l:"部門コードで院を特定し直接計上"}]},{n:"決済手数料",r:[{f:"09TWE_試算表",c:"「クレジット等手数料」行",l:"直接計上"}]},{n:"水道光熱費",r:[{f:"06バクラク",c:"科目コード=725 or 摘要「☆水道光熱費☆」(各院分)",l:"各院分→直接計上。摘要に「ヘルプ」「マンスリー」を含む場合は雑費へ振替"}]},{n:"地代家賃",r:[{f:"06バクラク",c:"科目コード=742 or 摘要「☆家賃☆」「☆地代家賃☆」(各院分)",l:"各院分→直接計上。摘要に「ヘルプ」「マンスリー」を含む場合は雑費へ振替"}]},{n:"電話代",r:[{f:"04オリックス",c:"C列「請求金額」−D列「うち消費税」",l:"部門名(A列)×部門コード(B列)で院を特定。各院分→直接、全体分→間接"},{f:"04SB",c:"O列「請求額計」",l:"部署名(2)で院を特定。空欄の場合は部署名(4)を使用。各院分→直接、全体分→間接"},{f:"04ドコモ",c:"I列「ご利用金額合計」−P列「消費税等相当額」",l:"E列「第2階層部門コード」で院を特定。各院分→直接、全体分→間接"},{f:"04楽天",c:"G列「金額(税抜)」",l:"L列「医院ID」で院を特定。「小計」行・「通話料(国内)」は除外。各院分→直接、全体分→間接"}]},{n:"アカウント使用料",r:[{f:"04アカウント台帳",c:"E列「月額金額」",l:"医院ID別に各院分を直接計上"}]},{n:"内線使用料",r:[{f:"04内線台帳",c:"E列の金額",l:"年1回(計上月2月)更新の金額を12ヶ月均等計上"}]},{n:"採用費",r:[{f:"06バクラク",c:"「採用費」科目(各院分)",l:"各院分を直接計上"}]},{n:"CC人件費",r:[{f:"02全体経費",c:"D列「金額」(CC行)",l:"(電話件数＋メール件数×0.4)を件数として院別に按分"},{f:"07CC件数",c:"電話件数＋メール件数×0.4",l:"閉院・転換前・両国の件数は除外"}]},{n:"CC経費",r:[{f:"06バクラク",c:"CC部門(勘定科目=マネジメント原価 かつ 摘要に☆地代家賃☆/☆家賃☆/☆水道光熱費☆)で発生した費用",l:"(電話件数＋メール件数×0.4)を件数として院別に按分"}]},{n:"TWE分",r:[{f:"09TWE_試算表",c:"「小口現金」行",l:"直接計上"}]},{n:"バクラク経費精算分",r:[{f:"06小口バクラク",c:"{CSJS313}(金額)",l:"÷1.1で税抜換算。計上月={CSJS005}、部門={CSJS200}で院を特定"}]},{n:"現金小口分",r:[{f:"06小口現金",c:"I列「支払金額」",l:"÷1.1で税抜換算。B列「全欄」で院を特定。科目No102+補助s除外"}]},{n:"バクラク雑費費目",r:[{f:"06バクラク",c:"雑費性質の勘定科目(他ロジック非該当)",l:"摘要「ヘルプ」「マンスリー」含む+100万以下の工事費+后相費。「入金機」は除外"}]},{n:"TWE大口経費分",r:[{f:"06バクラク",c:"消耗品費/医療消耗器具備品費/医薬品費/診療材料費",l:"摘要「工事」除外。開院費用は12ヶ月分割"}]},{n:"バクラクカード",r:[{f:"06バクラクカード",c:"{CSJS313}(金額)",l:"÷1.1で税抜換算。計上月={CSJS005}、部門={CSJS200}で院を特定"}]},{n:"NS経費",r:[{f:"09TWE_試算表",c:"「雑費」行",l:"直接計上"}]},{n:"Amazon費",r:[{f:"06Amazon",c:"E列「金額」",l:"÷1.1で税抜換算。計上月=A列「日付」+1ヶ月。院コード(C列)で院を特定"}]},{n:"アスクル費",r:[{f:"06アスクル",c:"E列「金額」",l:"÷1.1で税抜換算。計上月=A列「日付」+1ヶ月。院コード(C列)で院を特定"}]},{n:"PC消耗品費",r:[{f:"06PC消耗品",c:"「請求単価」列",l:"{主に利用するクリニック・部署}で院を特定。仮出荷は除外。カテゴリ+仕入業者名=PCFBJは除外"}]},{n:"ボディーアーキチケット金額（マイナス計上）",r:[{f:"06ボディアーキ",c:"F列「小計/売上金額」",l:"I列=「○」の行のみ対象。マイナス計上。医院ID(B列)で院を特定"}]},{n:"麻酔科委託費",r:[{f:"06麻酔科",c:"G列「麻酔科医報酬（税込）」",l:"C列「クリニック」で院を特定し計上"}]},{n:"ロスの料金電子カルテ",r:[{f:"09TWE_試算表",c:"「顛末書損害額」行",l:"直接計上"}]},{n:"后相費（償却残）",r:[{f:"06バクラク",c:"后相費(100万以下の償却残)",l:"各院分を直接計上"}]},{n:"香典",r:[{f:"06香典",c:"J列「香典」(金額)",l:"院ID(D列)×所属(E列)で院を特定。除外対象者は対象外。各院分→直接、全体分→按分ルール2"}]},{n:"健康診断料",r:[{f:"06健診",c:"D列「健康診断料（金額）」",l:"÷1.1で税抜換算。院ID(B列)で院を特定。実績合計は両国健診の診療総額に加算"}]},{n:"ワクチン代",r:[{f:"06ワクチン",c:"G列「金額」",l:"÷1.1で税抜換算。院名(B列)×TWE院ID(D列)で院を特定"}]},{n:"経費移動",r:[{f:"06経費移動",c:"D列「経費移動」",l:"÷1.1で税抜換算。院ID(B列)で院を特定"}]},{n:"入金機",r:[{f:"06バクラク",c:"摘要「入金機オンラインシステム」",l:"該当行を抽出"}]},{n:"機器リース料",r:[{f:"05リース台帳",c:"G列「リース代」(税抜)",l:"院名(B列)×TWE院ID(D列)で院を特定し計上"}]},{n:"減価償却費",r:[{f:"08償却ファイル",c:"各院列×償却項目行",l:"2025/10以前の償却残＋2025/11～当月の償却残"},{f:"06バクラク",c:"「建設仮勘定」(摘要「工事」含む＋100万超)",l:"100万超を36ヶ月分割計上"},{f:"06バクラク",c:"「支払手数料」(補助科目コード12)",l:"直接計上"}]}]},
+{s:"間接経費",c:"#7C3AED",i:[{n:"共通人件費",r:[{f:"02勤怠実績",c:"F列「全体割人件費合計」",l:"金額を直接計上"},{f:"02全体経費",c:"番号1~20の金額",l:"指定按分業態で売上配賦"}]},{n:"共通広告宣伝費",r:[{f:"03広告費",c:"L列「PPC」/M列「TVCM」/N列「電車広告」/O列「その他」",l:"値を直接計上"},{f:"06バクラク",c:"科目コード=718「広告宣伝費」(全体分)",l:"按分ルール2で間接配賦"}]},{n:"共通採用費",r:[{f:"06バクラク",c:"「採用費」(全体分)",l:"基本→ルール2/新卒→ルール4/AGA→ルール15/歯科→ルール16/レディース→ルール18+償却残"}]},{n:"地代家賃（事務局）",r:[{f:"06バクラク",c:"科目コード=742 or 摘要「☆家賃☆」「☆地代家賃☆」(全体部門分)",l:"部門に応じた按分ルールで配賦。摘要「ヘルプ」「マンスリー」は雑費へ振替"}]},{n:"水道光熱費（事務局）",r:[{f:"06バクラク",c:"科目コード=725 or 摘要「☆水道光熱費☆」(全体部門分)",l:"部門に応じた按分ルールで配賦。摘要「ヘルプ」「マンスリー」は雑費へ振替"}]},{n:"システム運用費（事務局）",r:[{f:"06バクラク",c:"「代理人原価」",l:"取引先「タナカジマル」→ルール3、それ以外→ルール1"},{f:"04勘定奉行",c:"D列「借方」",l:"「その他」行を除く借方合計−直接アカウント使用料−直接内線使用料。按分ルール1"}]},{n:"電話代(事務局)",r:[{f:"04オリックス",c:"C列「請求金額」−D列「うち消費税」(全体部門分)",l:"部門に応じた按分ルール"},{f:"04SB",c:"O列「請求額計」(全体部門分)",l:"部門に応じた按分ルール"},{f:"04ドコモ",c:"I列−P列(全体部門分)",l:"部門に応じた按分ルール"},{f:"04楽天",c:"G列(全体部門分)",l:"部門に応じた按分ルール"}]},{n:"アカウント使用料（事務局）",r:[{f:"04アカウント台帳",c:"全体分の金額",l:"按分ルール2"}]},{n:"内線使用料（事務局）",r:[{f:"04内線台帳",c:"全体分の金額",l:"按分ルール2"}]},{n:"バクラク経費（事務局）",r:[{f:"06バクラク",c:"雑費費目(全体部門)",l:"「☆家賃☆」「新卒」「☆水道光熱費☆」除く+償却残"}]},{n:"小口経費（事務局）",r:[{f:"06小口バクラク",c:"{CSJS313}(金額)の全体部門分",l:"÷1.1で税抜換算。部門に応じた按分ルール(上場人材除外)"},{f:"06小口現金",c:"I列「支払金額」の全体部門分",l:"÷1.1で税抜換算。部門に応じた按分ルール"}]},{n:"バクラクカード（事務局）",r:[{f:"06バクラクカード",c:"全体分",l:"按分ルール2"}]},{n:"Amazon費（事務局）",r:[{f:"06Amazon",c:"全体分",l:"按分ルール2"}]},{n:"PC消耗品費（事務局）",r:[{f:"06PC消耗品",c:"全体分",l:"按分ルール2"}]},{n:"香典",r:[{f:"06香典",c:"全体分",l:"按分ルール2"}]},{n:"共通研究開発費",r:[{f:"ラボ純損失",c:"前月Lab新宿の営業損失",l:"按分ルール2(マイナス時のみ)"}]},{n:"返金対応",r:[{f:"09返金",c:"SBC+医療法人の−合計額",l:"按分ルール9"}]}]},
+];
+
+const B=[
+{no:1,b:"売上",nw:[{p:"売上＞移動後診療総額"}],nt:""},
+{no:2,b:"仕入（医薬品）",nw:[{p:"売上原価＞医薬品仕入"}],nt:""},
+{no:7,b:"給与",nw:[{p:"人件費＞給与計＞給与"}],nt:""},
+{no:8,b:"Dr家賃",nw:[{p:"人件費＞給与計＞社宅家賃"}],nt:""},
+{no:11,b:"賞与",nw:[{p:"人件費＞賞与"}],nt:""},
+{no:12,b:"法定（年金・健保）",nw:[{p:"人件費＞法定福利費"}],nt:""},
+{no:24,b:"入金機",nw:[{p:"雑費＞その他経費＞入金機"}],nt:""},
+{no:14,b:"広告宣伝（全体割）",nw:[{p:"共通広告宣伝費＞PPC"},{p:"共通広告宣伝費＞その他広告"}],nt:""},
+{no:14,b:"広告宣伝（各院別）",nw:[{p:"広告宣伝費＞広告宣伝費 各院別"},{p:"共通広告宣伝費＞TVCM"},{p:"共通広告宣伝費＞電車広告"}],nt:""},
+{no:16,b:"通信費",nw:[{p:"通信費＞電話代"},{p:"共通通信費＞電話代(事務局)"}],nt:""},
+{no:3,b:"輸入（使用数量）",nw:[{p:"売上原価＞輸入品仕入"}],nt:""},
+{no:19,b:"レーザー",nw:[{p:"機器リース料"}],nt:""},
+{no:17,b:"水道光熱費",nw:[{p:"施設関連費＞水道光熱費"}],nt:""},
+{no:18,b:"地代家賃",nw:[{p:"施設関連費＞地代家賃"}],nt:""},
+{no:5,b:"ｸﾚｼﾞｯﾄ手数料",nw:[{p:"決済手数料"}],nt:""},
+{no:4,b:"消耗品（ｶｷﾇﾏ聖他）",nw:[{p:"売上原価＞消耗品仕入"},{p:"雑費＞院経費＞TWE大口経費分"}],nt:"消耗品性質のものを分離"},
+{no:"ー",b:"消費税",nw:[{p:"ー"}],nt:"新院別収支表では科目なし"},
+{no:20,b:"小口（各医院経費）",nw:[{p:"雑費＞院経費＞TWE分"}],nt:""},
+{no:21,b:"雑費",nw:[{p:"雑費＞NS経費"}],nt:""},
+{no:22,b:"ロスの料金電子カルテ",nw:[{p:"雑費＞その他経費＞ロスの料金電子カルテ"}],nt:""},
+{no:25,b:"その他",nw:[{p:"広告宣伝費＞各院別（バクラク計上分）"},{p:"雑費＞院経費＞バクラク経費精算分"},{p:"雑費＞院経費＞現金小口分"},{p:"雑費＞院経費＞バクラク雑費費目"},{p:"雑費＞院経費＞バクラクカード"},{p:"雑費＞Amazon費"},{p:"雑費＞アスクル費"},{p:"雑費＞PC消耗品費"},{p:"雑費＞その他経費＞香典"},{p:"雑費＞その他経費＞健康診断料"},{p:"雑費＞その他経費＞ワクチン代"},{p:"共通雑費＞小口経費（事務局）"},{p:"共通雑費＞バクラクカード（事務局）"},{p:"共通雑費＞Amazon費（事務局）"},{p:"共通雑費＞PC消耗品費（事務局）"},{p:"共通雑費＞香典"}],nt:"★16科目に分解★"},
+{no:26,b:"紹介手数料",nw:[{p:"採用費"},{p:"共通採用費"}],nt:""},
+{no:28,b:"運営費ｾｲﾙｽｿｰｽ込み",nw:[{p:"雑費＞その他経費＞経費移動"},{p:"CC経費＞CC経費"},{p:"共通施設関連費＞地代家賃（事務局）"},{p:"共通施設関連費＞水道光熱費（事務局）"},{p:"共通通信費＞システム運用費（事務局）"},{p:"共通雑費＞バクラク経費（事務局）"},{p:"共通雑費＞共通研究開発費"},{p:"共通雑費＞返金対応"},{p:"共通通信費＞アカウント使用料（事務局）"},{p:"共通通信費＞内線使用料（事務局）"},{p:"通信費＞アカウント使用料"},{p:"通信費＞内線使用料"},{p:"雑費＞ボディーアーキチケット金額（マイナス計上）"}],nt:"★13科目に分解★"},
+{no:13,b:"管理者給料",nw:[{p:"CC経費＞CC人件費"},{p:"共通人件費"},{p:"雑費＞麻酔科委託費"}],nt:"3つの費目に分離"},
+{no:27,b:"減価償却",nw:[{p:"減価償却費"}],nt:""},
+{no:9,b:"報奨金",nw:[{p:"人件費＞給与計＞報奨金"}],nt:""},
+{no:10,b:"歩合",nw:[{p:"人件費＞給与計＞歩合"}],nt:""},
+{no:23,b:"后相（償却残）",nw:[{p:"雑費＞その他経費＞后相費（償却残）"}],nt:""},
+{no:15,b:"ポイント相殺金額",nw:[{p:"売上＞ポイント利用分"}],nt:""},
+{no:29,b:"物品販売額",nw:[{p:"売上＞うち物販売上"}],nt:""},
+{no:30,b:"前受金",nw:[{p:"前受金増加額"}],nt:""},
+];
+
+const O=[
+{o:"売上",s:"売上",nw:[{p:"売上＞移動後診療総額"},{p:"売上＞うち物販売上"},{p:"売上＞ポイント利用分"}],nt:""},
+{o:"仕入れ(医薬品）",s:"売上原価",nw:[{p:"売上原価＞医薬品仕入"}],nt:""},
+{o:"輸入（使用数量）",s:"売上原価",nw:[{p:"売上原価＞輸入品仕入"}],nt:""},
+{o:"消耗品(ｶｷﾇﾏ聖他）",s:"売上原価",nw:[{p:"売上原価＞消耗品仕入"},{p:"直接経費＞雑費＞院経費＞TWE大口経費分"},{p:"直接経費＞雑費＞院経費＞バクラクカード（消耗品性質）"}],nt:""},
+{o:"ｸﾚｼﾞｯﾄ手数料",s:"売上原価",nw:[{p:"直接経費＞決済手数料"}],nt:""},
+{o:"消費税",s:"売上原価",nw:[{p:"ー"}],nt:"新院別では科目なし"},
+{o:"給与合計",s:"人件費",nw:[{p:"直接経費＞人件費＞給与計＞給与"},{p:"直接経費＞人件費＞給与計＞社宅家賃"},{p:"直接経費＞人件費＞給与計＞報奨金"},{p:"直接経費＞人件費＞給与計＞歩合"}],nt:"旧「給与合計」を給与・社宅家賃・報奨金・歩合の4科目に分離"},
+{o:"賞与引当金",s:"人件費",nw:[{p:"直接経費＞人件費＞賞与"}],nt:""},
+{o:"法定（年金・健保）",s:"人件費",nw:[{p:"直接経費＞人件費＞法定福利費"}],nt:""},
+{o:"全体割人件費",s:"人件費",nw:[{p:"間接経費＞CC経費＞CC人件費"},{p:"間接経費＞共通人件費"},{p:"直接経費＞雑費＞その他経費＞麻酔科委託費"}],nt:"3つに分離"},
+{o:"広告宣伝費全体割",s:"広告費",nw:[{p:"間接経費＞共通広告宣伝費＞PPC"},{p:"間接経費＞共通広告宣伝費＞その他広告"}],nt:""},
+{o:"広告宣伝費各院別",s:"広告費",nw:[{p:"直接経費＞広告宣伝費＞広告宣伝費 各院別"},{p:"間接経費＞共通広告宣伝費＞TVCM"},{p:"間接経費＞共通広告宣伝費＞電車広告"}],nt:"直接と間接に分離"},
+{o:"通信費",s:"その他経費",nw:[{p:"直接経費＞通信費＞電話代"},{p:"間接経費＞共通雑費＞共通通信費＞電話代(事務局)"}],nt:""},
+{o:"水道光熱費",s:"その他経費",nw:[{p:"直接経費＞施設関連費＞水道光熱費"}],nt:""},
+{o:"地代家賃",s:"その他経費",nw:[{p:"直接経費＞施設関連費＞地代家賃"}],nt:""},
+{o:"機器リースレーザー機器等",s:"その他経費",nw:[{p:"直接経費＞機器リース料"}],nt:""},
+{o:"小口（各医院経費）",s:"その他経費",nw:[{p:"直接経費＞雑費＞院経費＞TWE分"}],nt:""},
+{o:"雑費",s:"その他経費",nw:[{p:"直接経費＞雑費＞NS経費"},{p:"直接経費＞雑費＞その他経費＞ロスの料金電子カルテ"},{p:"直接経費＞雑費＞その他経費＞后相費（償却残）"},{p:"直接経費＞雑費＞その他経費＞入金機"}],nt:"旧「雑費」をNS経費・ロスの料金・后相費・入金機の4科目に分離"},
+{o:"その他",s:"その他経費",nw:[{p:"直接経費＞広告宣伝費＞広告宣伝費 各院別＞バクラク計上分"},{p:"直接経費＞雑費＞院経費＞バクラク経費精算分"},{p:"直接経費＞雑費＞院経費＞現金小口分"},{p:"直接経費＞雑費＞院経費＞バクラク雑費費目"},{p:"直接経費＞雑費＞院経費＞バクラクカード（消耗品性質以外）"},{p:"直接経費＞雑費＞Amazon費"},{p:"直接経費＞雑費＞アスクル費"},{p:"直接経費＞雑費＞PC消耗品費"},{p:"直接経費＞雑費＞その他経費＞香典"},{p:"直接経費＞雑費＞その他経費＞健康診断料"},{p:"直接経費＞雑費＞その他経費＞ワクチン代"},{p:"間接経費＞共通広告宣伝費＞その他広告"},{p:"間接経費＞共通雑費＞小口経費（事務局）"},{p:"間接経費＞共通雑費＞香典"},{p:"間接経費＞共通雑費＞Amazon費（事務局）"},{p:"間接経費＞共通雑費＞PC消耗品費（事務局）"},{p:"間接経費＞共通雑費＞バクラクカード（事務局）"},{p:"直接経費＞採用費"},{p:"間接経費＞共通採用費"}],nt:"19科目に分解（紹介手数料=採用費含む）"},
+{o:"減価償却",s:"その他経費",nw:[{p:"直接経費＞減価償却費"}],nt:""},
+{o:"運営費",s:"その他経費",nw:[{p:"直接経費＞雑費＞その他経費＞経費移動"},{p:"間接経費＞CC経費＞CC経費"},{p:"間接経費＞共通施設関連費＞地代家賃（事務局）"},{p:"間接経費＞共通施設関連費＞水道光熱費（事務局）"},{p:"間接経費＞共通雑費＞共通通信費＞システム運用費（事務局）"},{p:"間接経費＞共通雑費＞バクラク経費（事務局）"},{p:"間接経費＞共通雑費＞共通研究開発費"},{p:"間接経費＞共通雑費＞返金対応"},{p:"間接経費＞共通雑費＞共通通信費＞アカウント使用料（事務局）"},{p:"間接経費＞共通雑費＞共通通信費＞内線使用料（事務局）"},{p:"直接経費＞通信費＞アカウント使用料"},{p:"直接経費＞通信費＞内線使用料"},{p:"直接経費＞雑費＞ボディーアーキチケット金額（マイナス計上）"}],nt:"旧「運営費」を13科目に分解（院別アカウント・内線・ボディアーキ含む）"},
+{o:"前受金増加額",s:"前受金増加額",nw:[{p:"前受金増加額"}],nt:""},
+{o:"純利益",s:"純利益",nw:[{p:"前受金考慮利益"}],nt:""},
+];
+
+// ========== HELPERS ==========
+function dc(d){if(!d)return"#64748B";if(d.startsWith("売上原価"))return"#D97706";if(d.startsWith("売上"))return"#059669";if(d.startsWith("間接経費")||d.startsWith("共通"))return"#7C3AED";if(d.startsWith("直接経費")||d.startsWith("人件費")||d.startsWith("広告宣伝費")||d.startsWith("施設関連費")||d.startsWith("通信費")||d.startsWith("雑費")||d.startsWith("採用費")||d.startsWith("CC経費")||d.startsWith("決済手数料")||d.startsWith("減価償却費")||d.startsWith("機器リース"))return"#2563EB";return"#64748B"}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function chipHtml(text,bg,color,border){return `<span class="chip" style="background:${bg};color:${color};border:1px solid ${border}">${esc(text)}</span>`}
+function countChip(cnt){
+  return `<div class="folder-count"><div class="folder-count-num" style="color:#2563EB">${cnt}</div><div class="folder-count-label">科目</div></div>`;
+}
+function sourceChip(cnt,c){return `<div class="folder-count"><div class="folder-count-num" style="color:#2563EB">${cnt}</div><div class="folder-count-label">ソース</div></div>`}
+
+// ========== STATE ==========
+let currentPage="pltree", dsTab="folder", mpTab="boss";
+let dsOpen=new Set(["09a","06a"]), mpOpen=new Set();
+let globalEditMode=false;
+
+function toggleGlobalEdit(){
+  globalEditMode=!globalEditMode;
+  const btn=document.getElementById('globalEditBtn');
+  btn.classList.toggle('active',globalEditMode);
+  btn.textContent=globalEditMode?'編集モード ON':'編集モード';
+  document.body.classList.toggle('edit-mode',globalEditMode);
+  renderDS();renderMP();renderPLTree();renderFlow();
+}
+
+// ===== 編集モーダル共通 =====
+function closeEditModal(){
+  const ov=document.querySelector('.edit-overlay');
+  if(ov) ov.remove();
+}
+
+// ===== データソース(F配列)の編集 =====
+function editExtract(folderId,fileIdx,extractIdx){
+  const f=F.find(x=>x.id===folderId);if(!f)return;
+  const ex=f.f[fileIdx].e[extractIdx];
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  ov.innerHTML=`<div class="edit-modal"><h3>取込ロジック編集</h3>
+    <div class="edit-field"><label>取込列 (c)</label><input id="ae-ec" value="${(ex.c||'').replace(/"/g,'&quot;')}"></div>
+    <div class="edit-field"><label>ロジック説明 (v)</label><textarea id="ae-ev" rows="2">${ex.v||''}</textarea></div>
+    <div class="edit-field"><label>行先 (d)</label><input id="ae-ed" value="${(ex.d||'').replace(/"/g,'&quot;')}"></div>
+    <div class="edit-modal-actions"><button class="adv-edit-btn" onclick="closeEditModal()">キャンセル</button>
+    <button class="adv-edit-btn primary" onclick="saveExtract('${folderId}',${fileIdx},${extractIdx})">保存</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function saveExtract(folderId,fi,ei){
+  const f=F.find(x=>x.id===folderId);if(!f)return;
+  f.f[fi].e[ei].c=document.getElementById('ae-ec').value;
+  f.f[fi].e[ei].v=document.getElementById('ae-ev').value;
+  f.f[fi].e[ei].d=document.getElementById('ae-ed').value;
+  try{localStorage.setItem('F_data',JSON.stringify(F))}catch(e){}
+  closeEditModal();renderDS();
+}
+
+// ===== 費目→ソース(P配列)の編集 =====
+function editPItem(secIdx,itemIdx){
+  const sec=P[secIdx];const item=sec.i[itemIdx];
+  let refsHtml=item.r.map((r,i)=>`<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:8px;margin-bottom:6px">
+    <div class="edit-field"><label>ソース${i+1} ファイル (f)</label><input id="ae-pf-${i}" value="${(r.f||'').replace(/"/g,'&quot;')}"></div>
+    <div class="edit-field"><label>取込列 (c)</label><input id="ae-pc-${i}" value="${(r.c||'').replace(/"/g,'&quot;')}"></div>
+    <div class="edit-field"><label>ロジック (l)</label><input id="ae-pl-${i}" value="${(r.l||'').replace(/"/g,'&quot;')}"></div></div>`).join('');
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  ov.innerHTML=`<div class="edit-modal"><h3>${esc(item.n)} — ソース編集</h3>${refsHtml}
+    <div class="edit-modal-actions"><button class="adv-edit-btn" onclick="closeEditModal()">キャンセル</button>
+    <button class="adv-edit-btn primary" onclick="savePItem(${secIdx},${itemIdx})">保存</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function savePItem(si,ii){
+  const item=P[si].i[ii];
+  item.r.forEach((r,i)=>{
+    r.f=document.getElementById('ae-pf-'+i).value;
+    r.c=document.getElementById('ae-pc-'+i).value;
+    r.l=document.getElementById('ae-pl-'+i).value;
+  });
+  try{localStorage.setItem('P_data',JSON.stringify(P))}catch(e){}
+  closeEditModal();renderDS();
+}
+
+// ===== マッピング(B配列/O配列)の編集 =====
+function editBMapping(idx){
+  const m=B[idx];
+  let nwHtml=m.nw.map((n,i)=>`<div class="edit-field"><label>新科目${i+1}</label><input id="ae-bp-${i}" value="${(n.p||'').replace(/"/g,'&quot;')}">
+    <input id="ae-bw-${i}" value="${(n.w||'').replace(/"/g,'&quot;')}" placeholder="注意（空欄可）" style="margin-top:4px"></div>`).join('');
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  ov.innerHTML=`<div class="edit-modal"><h3>${esc(m.b)} — マッピング編集</h3>
+    <div class="edit-field"><label>注釈</label><input id="ae-bnt" value="${(m.nt||'').replace(/"/g,'&quot;')}"></div>${nwHtml}
+    <div class="edit-modal-actions"><button class="adv-edit-btn" onclick="closeEditModal()">キャンセル</button>
+    <button class="adv-edit-btn primary" onclick="saveBMapping(${idx})">保存</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function saveBMapping(idx){
+  B[idx].nt=document.getElementById('ae-bnt').value;
+  B[idx].nw.forEach((n,i)=>{n.p=document.getElementById('ae-bp-'+i).value;const w=document.getElementById('ae-bw-'+i);if(w)n.w=w.value||undefined;});
+  try{localStorage.setItem('B_data',JSON.stringify(B))}catch(e){}
+  closeEditModal();renderMP();
+}
+
+function editOMapping(idx){
+  const m=O[idx];
+  let nwHtml=m.nw.map((n,i)=>`<div class="edit-field"><label>新科目${i+1}</label><input id="ae-op-${i}" value="${(n.p||'').replace(/"/g,'&quot;')}"></div>`).join('');
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  ov.innerHTML=`<div class="edit-modal"><h3>${esc(m.o)} — マッピング編集</h3>
+    <div class="edit-field"><label>注釈</label><input id="ae-ont" value="${(m.nt||'').replace(/"/g,'&quot;')}"></div>${nwHtml}
+    <div class="edit-modal-actions"><button class="adv-edit-btn" onclick="closeEditModal()">キャンセル</button>
+    <button class="adv-edit-btn primary" onclick="saveOMapping(${idx})">保存</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function saveOMapping(idx){
+  O[idx].nt=document.getElementById('ae-ont').value;
+  O[idx].nw.forEach((n,i)=>{n.p=document.getElementById('ae-op-'+i).value;});
+  try{localStorage.setItem('O_data',JSON.stringify(O))}catch(e){}
+  closeEditModal();renderMP();
+}
+
+// ===== フォルダ内ファイル注釈の編集 =====
+function editFileNote(folderId,fileIdx){
+  const f=F.find(x=>x.id===folderId);if(!f)return;
+  const fi=f.f[fileIdx];
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  ov.innerHTML=`<div class="edit-modal"><h3>${esc(fi.n)} — 注釈編集</h3>
+    <div class="edit-field"><label>注釈（改行可。【】はバッジ表示）</label><textarea id="ae-fnt" rows="6">${fi.nt||''}</textarea></div>
+    <div class="edit-modal-actions"><button class="adv-edit-btn" onclick="closeEditModal()">キャンセル</button>
+    <button class="adv-edit-btn primary" onclick="saveFileNote('${folderId}',${fileIdx})">保存</button></div></div>`;
+  document.body.appendChild(ov);ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function saveFileNote(folderId,fi){
+  const f=F.find(x=>x.id===folderId);if(!f)return;
+  f.f[fi].nt=document.getElementById('ae-fnt').value;
+  try{localStorage.setItem('F_data',JSON.stringify(F))}catch(e){}
+  closeEditModal();renderDS();
+}
+
+// ===== PLツリーのノード編集 =====
+function findNodeInAllTrees(name,trees){
+  for(const t of trees){
+    if(t.name===name) return t;
+    if(t.children){const f=findNodeInAllTrees(name,t.children);if(f)return f;}
+  }
+  return null;
+}
+let _editingPLNodeName=null;
+function editPLNode(name){
+  const node=findNodeInAllTrees(name, window.plTreeData||[]);
+  if(!node) return;
+  _editingPLNodeName=name;
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  const modal=document.createElement('div');modal.className='edit-modal';
+  modal.innerHTML='<h3>PL科目 編集</h3><div class="edit-field"><label>科目名</label><input id="ae-pln"></div><div class="edit-field"><label>番号 (no)</label><input id="ae-plno"></div><div class="edit-modal-actions"></div>';
+  ov.appendChild(modal);
+  document.body.appendChild(ov);
+  document.getElementById('ae-pln').value=node.name||'';
+  document.getElementById('ae-plno').value=node.no||'';
+  const actions=modal.querySelector('.edit-modal-actions');
+  const btnCancel=document.createElement('button');btnCancel.className='adv-edit-btn';btnCancel.textContent='キャンセル';
+  btnCancel.onclick=function(){ov.remove();};
+  const btnSave=document.createElement('button');btnSave.className='adv-edit-btn primary';btnSave.textContent='保存';
+  btnSave.onclick=function(){savePLNode();};
+  actions.appendChild(btnCancel);actions.appendChild(btnSave);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+function savePLNode(){
+  const node=findNodeInAllTrees(_editingPLNodeName, window.plTreeData||[]);
+  if(!node)return;
+  node.name=document.getElementById('ae-pln').value;
+  node.no=document.getElementById('ae-plno').value;
+  closeEditModal();
+  renderPLTree();
+}
+
+// ========== MAIN TABS ==========
+document.querySelectorAll('.main-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    currentPage=btn.dataset.page;
+    document.querySelectorAll('.main-tab').forEach(b=>b.classList.toggle('active',b===btn));
+    document.getElementById('page-datasource').style.display=currentPage==='datasource'?'':'none';
+    document.getElementById('page-mapping').style.display=currentPage==='mapping'?'':'none';
+    document.getElementById('page-pltree').style.display=currentPage==='pltree'?'':'none';
+    document.getElementById('page-advanced').style.display=currentPage==='advanced'?'':'none';
+    document.getElementById('page-flow').style.display=currentPage==='flow'?'':'none';
+    document.getElementById('page-diggle').style.display=currentPage==='diggle'?'':'none';
+    const oldRb=document.getElementById('nav-return-btn');if(oldRb)oldRb.remove();
+    if(currentPage==='pltree') renderPLTree();
+    if(currentPage==='flow') renderFlow();
+    if(currentPage==='diggle') renderDiggle();
+  });
+});
+
+// Google Drive folder URLs
+const driveUrls={
+"01a":"https://drive.google.com/drive/folders/121IJz3l0A-gcP0O801CjAirfm427vUwZ",
+"01b":"https://drive.google.com/drive/folders/1GTLz3mLHtyHuUC6R-ggVSOWy8IfzeVZr",
+"01c":"https://drive.google.com/drive/folders/1y84zUb7qnK0hUAmuwDaa2lGLQi8fO9uq",
+"02a":"https://drive.google.com/drive/folders/1JKYL5biR3J0vBc0hspRTrGyYFIlZ87y9",
+"02b":"https://drive.google.com/drive/folders/13Cyeiraye7vGiYZxLhki3Hnck_v0ZNBG",
+"03":"https://drive.google.com/drive/folders/1ICqCdp-H8kVZ860p0AwcGqfycyQFs_ZJ",
+"04a":"https://drive.google.com/drive/folders/1JbT-iZqUiM8p_ugURn9A15XDH6torOgt",
+"04b":"https://drive.google.com/drive/folders/17xpI1f_q7b3PHU5fqqEHt-R3y3i-8gZu",
+"04c":"https://drive.google.com/drive/folders/1tcX1nV4GgP8H8tfbr1N1LV-hNKybYS8W",
+"04d":"https://drive.google.com/drive/folders/15ea-E-JYR0lOKsqg_wQSXhSRGV2CgbYp",
+"04e":"https://drive.google.com/drive/folders/1A_4ndbvoXbKPiyIhzbDCoAmTYfUL1WEX",
+"05":"https://drive.google.com/drive/folders/1J0OaCuuVFB_ZrnSlMFg5VLoXCpi6nNyh",
+"06a":"https://drive.google.com/drive/folders/1STgSSOokgitpV6LC5aZOEBvzSccwcUXW",
+"06b":"https://drive.google.com/drive/folders/1caqNNThF3di247SzCSKciLafKj7lt_KR",
+"06c":"https://drive.google.com/drive/folders/1KkMs6M6W2s-gDHF2qm-Y3onGobDI-py-",
+"06d":"https://drive.google.com/drive/folders/1McJHfTp5o8s5t5fNKSEB6cbXTGC6dVGN",
+"06e":"https://drive.google.com/drive/folders/1deyJOVTkP1yjzd1QNXY8ioQZ6Cy8sRUU",
+"06f":"https://drive.google.com/drive/folders/11KpIkYfiDZt8_uu6Nzu9HLfyecsAEWX7",
+"06g":"https://drive.google.com/drive/folders/1a3m9_it1fSORuYQ5y6lW6tjW6snPcUsl",
+"06h":"https://drive.google.com/drive/folders/1-FCbH-a42-ra8oPBuYFx1ASnZMJ5DsTB",
+"06i":"https://drive.google.com/drive/folders/1w7cN5342EUzHBwxwYoy4Lrz_c7HEKNXs",
+"06j1":"https://drive.google.com/drive/folders/19uRO2ukPiXxm0ZQFtheTZ3c-QsLn8gz_",
+"06j2":"https://drive.google.com/drive/folders/1BFN-L0pImgTae_Efj9AJHwC14y3YfMF1",
+"06j3":"https://drive.google.com/drive/folders/1nTba1Ew2R8vufAiuPnVi2eQV2cvsLbWv",
+"06j4":"https://drive.google.com/drive/folders/1GTLz3mLHtyHuUC6R-ggVSOWy8IfzeVZr",
+"07":"https://drive.google.com/drive/folders/1FulxFufXiFxDSHhOZsWL_Te4xWMFH7aW",
+"08":"https://drive.google.com/drive/folders/1yabC4F4TUYbLmtQ3cdBwchvsmeq4Tt4X",
+"09a":"https://drive.google.com/drive/folders/1vaKz0K9r1la1m7qQH6b-dWprtSloOQDD",
+"09b":"https://drive.google.com/drive/folders/1w3ubdXh_kLj4w8ztWDA8Sm4g2070JXK1",
+"10a":"https://drive.google.com/drive/folders/18eQSW3GT2Pkunnn4E6AqbjGLMvbqI1Xl",
+"10b":"https://drive.google.com/drive/folders/1axg-FkTMCTIiSFOYvrjgSuB0Sni-h-i3",
+};
+
+const gasUrls={
+"01b":[{label:"出向分経費移動",url:"https://script.google.com/home/projects/1rUSvM6iQm7pAaBKLArZDEA5BzQS0z07eRtVs72tA_VuiCx59RiJff18l/edit"}],
+"06i":[{label:"麻酔科",url:"https://script.google.com/u/0/home/projects/1YpNw9JYL0y86ZcEI78VoAoqnAlbsEdPPeo4MlWMnnUPi8xJu3ylEeXNA/edit"}],
+"06j2":[{label:"健康診断",url:"https://script.google.com/u/0/home/projects/171-vsXTNdNARo5nmKcdqHpIQFcWR2prgRHQRfTy_eDMoOoWLY0uJRoGI/edit"}],
+"06j4":[{label:"経費移動",url:"https://script.google.com/u/0/home/projects/1JJeIEon_LL64ox0Sl8TcbkrJYYaI2T6_cAb0QT5aksXW74XnH1_cXFsv/edit"}],
+"07":[{label:"メール件数",url:"https://script.google.com/u/0/home/projects/167zIT9-Yx2EKYzht08YMmZPVL7ToR9PF5qol5XC4_FPKuh9bbykO0xww/edit"}],
+"10b":[{label:"ベトナム",url:"https://script.google.com/u/0/home/projects/1U9qZXDPE8KiHwwU1U_9Xrg5ZscpMlDtROLbK_YT4uMOzXWwUYY25I5JS/edit"}],
+};
+
+const gssUrls={
+"01a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1162",
+"01b":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1195",
+"01c":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1156",
+"02a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1183",
+"02b":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1182",
+"03":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1166",
+"04a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1169",
+"04b":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1159",
+"04c":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1164",
+"04d":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1157",
+"04e":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1179",
+"05":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1158",
+"06a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1618",
+"06e":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1163",
+"06f":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1172",
+"06g":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1173",
+"06h":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1205",
+"06i":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1175",
+"06j1":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1187",
+"06j2":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1174",
+"06j3":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1176",
+"06j4":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1195",
+"07":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1181",
+"08":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1186",
+"09a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1160",
+"09b":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1178",
+"10a":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1206",
+"10b":"https://sbc-med.diggle.jp/integrations/google_spreadsheet_achievement/1207",
+};
+
+function openDrive(el,id){
+  const url=driveUrls[id];
+  if(!url)return;
+  // コピーを試みる
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      el.textContent='コピー済 ✓';
+      el.classList.add('drive-copied');
+      setTimeout(()=>{el.textContent='Drive ↗';el.classList.remove('drive-copied')},1500);
+    }).catch(()=>{});
+  }
+  // 新タブで開くことも試みる
+  window.open(url,'_blank');
+}
+
+function openGSS(el,id){
+  const url=gssUrls[id];
+  if(!url)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      el.textContent='コピー済 ✓';
+      el.classList.add('gss-copied');
+      setTimeout(()=>{el.textContent='DIGGLE連携 ↗';el.classList.remove('gss-copied')},1500);
+    }).catch(()=>{});
+  }
+  window.open(url,'_blank');
+}
+
+let _navReturnPage=null;
+function showReturnBtn(pageId){
+  let rb=document.getElementById('nav-return-btn');
+  if(rb)rb.remove();
+  rb=document.createElement('div');
+  rb.id='nav-return-btn';
+  rb.className='nav-return-btn';
+  rb.innerHTML='← 戻る';
+  rb.onclick=function(){
+    if(_navReturnPage) document.querySelectorAll('.main-tab').forEach(b=>{if(b.dataset.page===_navReturnPage)b.click();});
+    rb.remove();
+  };
+  document.getElementById(pageId).prepend(rb);
+}
+function goToOxTable(ruleId){
+  _navReturnPage=currentPage;
+  currentPage='advanced';
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.toggle('active',b.dataset.page==='advanced'));
+  document.getElementById('page-datasource').style.display='none';
+  document.getElementById('page-mapping').style.display='none';
+  document.getElementById('page-pltree').style.display='none';
+  document.getElementById('page-advanced').style.display='';
+  document.getElementById('page-flow').style.display='none';
+  document.getElementById('page-diggle').style.display='none';
+  advOpen.add('adv1');advOpen.add('adv2');advOpen.add('adv3');
+  renderAdv();
+  showReturnBtn('page-advanced');
+  setTimeout(()=>{
+    const n=parseInt(ruleId);
+    const jinkenhi=[21,22,23,24,25,26,27,28,29,30];
+    let targetId=(ruleId==='jinkenhi'||jinkenhi.includes(n))?'ox-jinkenhi':'ox-himoku';
+    const el=document.getElementById(targetId);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },200);
+}
+
+function openGAS(el,url,label){
+  if(!url)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      el.textContent='コピー済 ✓';
+      el.classList.add('gas-copied');
+      setTimeout(()=>{el.textContent='GAS ↗';el.classList.remove('gas-copied')},1500);
+    }).catch(()=>{});
+  }
+  window.open(url,'_blank');
+}
+
+// ========== DATA SOURCE ==========
+function renderDS(){
+  const q=document.getElementById('dsSearch').value.toLowerCase();
+  const list=document.getElementById('dsList');
+  const orTerms=q.includes('|')?q.split('|').map(t=>t.trim()).filter(Boolean):null;
+  const flt=ts=>{if(!q)return true;if(orTerms)return orTerms.some(term=>ts.some(t=>t&&t.toLowerCase().includes(term)));return ts.some(t=>t&&t.toLowerCase().includes(q))};
+
+  if(dsTab==="folder"){
+    const fF=F.filter(f=>flt([f.n,f.w,...f.f.flatMap(fi=>[fi.n,fi.nt||"",...fi.e.flatMap(e=>[e.c,e.v,e.d])])]));
+    if(!fF.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">該当なし</div></div>';return}
+    let html='<div class="ds-legend"><span style="font-weight:700;color:#475569">凡例:</span><span class="ds-legend-item"><span class="ds-legend-swatch" style="background:#FEF9C3;border:1px solid #FACC15"></span>取込列</span><span class="ds-legend-item"><span style="font-weight:800;font-size:10px;color:#2563EB">→ 行先費目</span></span><span class="ds-legend-item"><span style="color:#64748B;font-size:9px">💬</span>備考</span></div>';
+    fF.forEach(f=>{
+      const te=f.f.reduce((s,fi)=>s+fi.e.length,0);
+      const cc="#2563EB";
+      const isOpen=dsOpen.has(f.id);
+      html+=`<div class="card ${isOpen?'open':''}" data-ds-id="${f.id}">
+        <div class="card-head" onclick="toggleDS('${f.id}')">
+          <div class="folder-icon" style="background:${cc}1a">📁</div>
+          <div style="flex:1;min-width:0">
+            <div class="card-title">${esc(f.n)}</div>
+            <div class="folder-meta">${esc(f.w)} ／ ${esc(f.t)}</div>
+          </div>
+          ${(gasUrls[f.id]||[]).map(g=>`<span class="gas-link" onclick="event.stopPropagation();openGAS(this,'${g.url}','${g.label}')" title="${g.label}のGASエディタを開く">GAS ↗</span>`).join('')}${driveUrls[f.id]?`<span class="drive-link" onclick="event.stopPropagation();openDrive(this,'${f.id}')" title="クリックでURLをコピー＆Google Driveを開く">Drive ↗</span>`:''}${gssUrls[f.id]?`<span class="gss-link" onclick="event.stopPropagation();openGSS(this,'${f.id}')" title="DIGGLEのファイル連携設定画面を開く">DIGGLE連携 ↗</span>`:''}
+          <div class="folder-count"><div class="folder-count-num" style="color:#2563EB">${te}</div><div class="folder-count-label">取込</div></div>
+          <span class="arrow-toggle">▾</span>
+        </div>
+        <div class="card-body">`;
+      f.f.forEach((fi,fii)=>{
+        // バッジ用の情報を事前抽出
+        let badges=[];
+        const delayMatch=fi.nt?fi.nt.match(/【[^】]*遅れ[^】]*】/):null;
+        if(delayMatch) badges.push({text:delayMatch[0],cls:'delay-badge'});
+        // 税抜換算バッジ
+        const hasTaxCalc=fi.e.some(x=>x.v&&x.v.includes('÷1.1'));
+        if(hasTaxCalc) badges.push({text:'÷1.1 税抜換算',cls:'badge-tax'});
+        const badgeHtml=badges.map(b=>`<span class="${b.cls}">${esc(b.text)}</span>`).join('');
+
+        html+=`<div class="file-section">
+          <div class="file-header"><span style="font-size:12px"></span><span class="file-name">${esc(fi.n)}</span>${badgeHtml}${globalEditMode?`<span class="adv-edit-btn" onclick="editFileNote('${f.id}',${fii})" style="margin-left:auto">注釈編集</span>`:''}</div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-left:16px">`;
+        fi.e.forEach((x,eii)=>{
+          const c2=dc(x.d);
+          html+=`<div class="extract-row editable-highlight" ${globalEditMode?`onclick="editExtract('${f.id}',${fii},${eii})"`:''}>`+
+            `<div class="extract-top">
+              <div class="extract-col">${esc(x.c)}</div>
+              <div class="extract-dest" style="color:${c2};background:${c2}08">→ ${esc(x.d)}</div>
+            </div>
+          </div>`;
+        });
+        html+=`</div>`;
+        // 備考：共通パターンを除外した特殊処理のみ
+        let remarks=[];
+        let bakurakuRule='';
+        fi.e.forEach(x=>{if(x.v){
+          let v=x.v;
+          // 共通パターンを除去した残りを備考に
+          const isJustIdentify=/^.{1,10}で院を特定し計上$/.test(v);
+          const isJustDirect=/^(値を直接計上|院別の値を直接計上|直接計上|医院ID別に直接計上)$/.test(v);
+          if(isJustIdentify||isJustDirect) return;
+          // 税抜換算部分を除去
+          v=v.replace(/÷1\.1で税抜換算[。、．]?\s*/g,'').trim();
+          // 「○列で院を特定」部分を除去
+          v=v.replace(/[。、．]?\s*[A-Za-z\u4e00-\u9fff()（）{}\[\]「」]+で院を特定(し計上)?/g,'').trim();
+          // 按分ルール関連は除去
+          v=v.replace(/按分ルール\d+[^。]*/g,'').replace(/ルール\d+/g,'').trim();
+          v=v.replace(/^[、。．\s→]+|[、。．\s→]+$/g,'').trim();
+          if(v) remarks.push(v);
+        }});
+        if(fi.nt){
+          let ntText=fi.nt;
+          let bakurakuIdx=ntText.indexOf('【バクラク共通ルール】');
+          let bakurakuRaw='';
+          if(bakurakuIdx>=0){
+            bakurakuRaw=ntText.substring(bakurakuIdx+12);
+            ntText=ntText.substring(0,bakurakuIdx);
+          }
+          const parts=ntText.replace(/【[^】]+】/g,'').trim().split(/[。\n]/).filter(s=>s.trim());
+          parts.forEach(p=>{
+            p=p.trim();if(!p)return;
+            if(/^R\d+.*ヘッダー/.test(p)) return;
+            // 按分ルール関連は全てスキップ
+            if(p.includes('按分ルール')||/^按分/.test(p)) return;
+            if(/^間接：全体分は/.test(p)&&p.includes('按分')) return;
+            remarks.push(p);
+          });
+          if(bakurakuRaw) bakurakuRule=bakurakuRaw.trim();
+        }
+        if(remarks.length||bakurakuRule){
+          html+=`<div style="display:flex;flex-direction:column;gap:2px;margin:4px 16px 0">`;
+          remarks.forEach(r=>{
+            html+=`<div class="file-note note-remark">💬 ${esc(r)}</div>`;
+          });
+          if(bakurakuRule){
+            html+=`<div class="bakuraku-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">▶ バクラク共通ルール</div>`;
+            html+=`<div class="bakuraku-detail" style="display:none">`;
+            bakurakuRule.split(/(?=\d+\.)/).filter(s=>s.trim()).forEach(item=>{
+              html+=`<div class="file-note note-remark" style="margin-left:8px">${esc(item.trim().replace(/。$/,''))}</div>`;
+            });
+            html+=`</div>`;
+          }
+          html+=`</div>`;
+        }
+        html+=`</div>`;
+      });
+      html+=`</div></div>`;
+    });
+    list.innerHTML=html;
+  } else {
+    // PL view
+    const fltName=ts=>{if(!q)return true;if(orTerms)return orTerms.some(term=>ts.some(t=>t&&t.toLowerCase()===term));return ts.some(t=>t&&t.toLowerCase().includes(q))};
+    const fP=P.map(s=>({...s,i:s.i.filter(i=>orTerms?fltName([i.n]):flt([i.n,...i.r.flatMap(r=>[r.f,r.c,r.l])]))})).filter(s=>s.i.length);
+    if(!fP.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">該当なし</div></div>';return}
+    let html='';
+    fP.forEach((sec,si)=>{
+      html+=`<div class="section-header"><div class="section-bar" style="background:${sec.c}"></div><h2 class="section-title" style="color:${sec.c}">${esc(sec.s)}</h2>${sec.s==='間接経費'?`<span class="badge-rule" style="cursor:pointer;margin-left:6px" onclick="goToOxTable('jinkenhi')" title="人件費○×表を見る">人件費○× ↗</span><span class="badge-rule" style="cursor:pointer;margin-left:4px" onclick="goToOxTable('2')" title="運営費○×表を見る">運営費○× ↗</span>`:''}<span class="section-count">${sec.i.length}費目</span></div>`;
+      sec.i.forEach((item,ii)=>{
+        const key=sec.s+item.n;
+        const isOpen=dsOpen.has(key);
+        // 元のP配列でのインデックスを探す
+        const origSi=P.findIndex(s=>s.s===sec.s);
+        const origIi=origSi>=0?P[origSi].i.findIndex(i=>i.n===item.n):-1;
+        html+=`<div class="card ${isOpen?'open':''}" data-ds-id="${esc(key)}">
+          <div class="card-head" onclick="toggleDS('${key.replace(/'/g,"\\'")}')">
+            <div style="flex:1;font-weight:700;font-size:12px;color:#0F172A">${esc(item.n)}</div>
+            ${globalEditMode&&origSi>=0&&origIi>=0?`<span class="adv-edit-btn" onclick="event.stopPropagation();editPItem(${origSi},${origIi})" style="font-size:9px">編集</span>`:``}
+            ${sourceChip(item.r.length,sec.c)}
+            <span class="arrow-toggle">▾</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:5px">`;
+        item.r.forEach(sr=>{
+          // バッジ抽出
+          let sBadges=[];
+          const isIndirect=sec.s!=='直接経費'&&sec.s!=='売上'&&sec.s!=='売上原価'&&sec.s!=='特別';
+          if(sr.l&&sr.l.includes('÷1.1')) sBadges.push({text:'÷1.1 税抜換算',cls:'badge-tax'});
+          if(isIndirect && sr.l){
+            if(sr.l.includes('按分業態で売上')||sr.f.includes('02全体経費')){
+              sBadges.push({text:'人件費○×',cls:'badge-rule',ruleId:'jinkenhi'});
+            } else if(sr.l.includes('部門に応じた')){
+              sBadges.push({text:'部門別',cls:'badge-rule',ruleId:null});
+            } else if((sr.l.match(/ルール/g)||[]).length>=2){
+              sBadges.push({text:'内容別',cls:'badge-rule',ruleId:null});
+            } else if(sr.l.includes('件数') && sr.l.includes('按分')){
+              sBadges.push({text:'件数按分',cls:'badge-rule',ruleId:null});
+            } else {
+              let sRuleNums=new Set();
+              const rm=sr.l.match(/(?:按分)?ルール(\d+)/g);
+              if(rm) rm.forEach(r=>{const n=r.match(/\d+/);if(n)sRuleNums.add(n[0]);});
+              sRuleNums.forEach(n=>sBadges.push({text:'按分ルール'+n,cls:'badge-rule',ruleId:n}));
+            }
+          }
+          const sBadgeHtml=sBadges.map(b=>{
+            if(b.ruleId) return `<span class="${b.cls}" title="${esc(b.text)}">${b.ruleId==='jinkenhi'?'人件費○×':'No.'+b.ruleId}</span>`;
+            return `<span class="${b.cls}">${esc(b.text)}</span>`;
+          }).join('');
+          // 備考：ロジックから共通パターンを除去した残り
+          let sRemark=sr.l||'';
+          sRemark=sRemark.replace(/÷1\.1で税抜換算[。、．]?\s*/g,'').trim();
+          sRemark=sRemark.replace(/[。、．]?\s*[A-Za-z\u4e00-\u9fff()（）{}\[\]「」]+で院を特定(し計上)?/g,'').trim();
+          sRemark=sRemark.replace(/按分ルール\d+[^。]*/g,'').replace(/ルール\d+/g,'').trim();
+          sRemark=sRemark.replace(/^[、。．\s→]+|[、。．\s→]+$/g,'').trim();
+          const isSimple=/^(値を直接計上|院別の値を直接計上|直接計上|医院ID別に直接計上|金額を直接計上|毎月計上)$/.test(sRemark);
+          if(isSimple) sRemark='';
+
+          html+=`<div class="source-block">
+            <div class="source-file"><span class="source-file-name">${esc(sr.f)}</span>${sBadgeHtml}</div>
+            <div class="source-col-text">${esc(sr.c)}</div>
+            ${sRemark?`<div class="file-note note-remark" style="margin:2px 0 0 0">💬 ${esc(sRemark)}</div>`:''}
+          </div>`;
+        });
+        html+=`</div></div>`;
+      });
+    });
+    list.innerHTML=html;
+  }
+}
+
+function toggleDS(id){dsOpen.has(id)?dsOpen.delete(id):dsOpen.add(id);renderDS()}
+
+document.querySelectorAll('#dsTabs .sub-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    dsTab=btn.dataset.sub;
+    document.querySelectorAll('#dsTabs .sub-tab').forEach(b=>b.classList.toggle('active',b===btn));
+    dsOpen=new Set();renderDS();
+  });
+});
+document.getElementById('dsSearch').addEventListener('input',renderDS);
+document.getElementById('dsExpandAll').addEventListener('click',()=>{
+  if(dsTab==="folder")dsOpen=new Set(F.map(f=>f.id));
+  else dsOpen=new Set(P.flatMap(s=>s.i.map(i=>s.s+i.n)));
+  renderDS();
+});
+document.getElementById('dsCollapseAll').addEventListener('click',()=>{dsOpen=new Set();renderDS()});
+
+// ========== MAPPING ==========
+function renderMP(){
+  const q=document.getElementById('mpSearch').value.toLowerCase();
+  const list=document.getElementById('mpList');
+  const flt=ts=>{if(!q)return true;return ts.some(t=>t&&t.toLowerCase().includes(q))};
+
+  if(mpTab==="boss"){
+    const fB=B.filter(m=>flt([m.b,m.nt,...m.nw.map(n=>n.p)]));
+    let html=`<div class="info-banner" style="background:#FFFBEB;border:1px solid #FDE68A;color:#92400E"><b>社長原本</b>→<b>新院別収支表</b>のマッピング。出典: 社長原本マッピング.xlsx（最新版）</div>`;
+    if(!fB.length){html+='<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">該当なし</div></div>';list.innerHTML=html;return}
+    fB.forEach((m,mi)=>{
+      const origIdx=B.indexOf(m);
+      const k="b_"+m.b;const isOpen=mpOpen.has(k);
+      html+=`<div class="card ${isOpen?'open':''}" data-mp-id="${esc(k)}">
+        <div class="card-head" onclick="toggleMP('${k.replace(/'/g,"\\'")}')">
+          <div class="card-title">${esc(m.b)}</div>
+          ${globalEditMode&&origIdx>=0?`<span class="adv-edit-btn" onclick="event.stopPropagation();editBMapping(${origIdx})" style="font-size:9px">編集</span>`:``}
+          ${countChip(m.nw.length)}
+          <span class="arrow-toggle">▾</span>
+        </div>
+        <div class="card-body"><div style="display:flex;flex-direction:column;gap:3px">`;
+      m.nw.forEach(n=>{
+        const c=dc(n.p);
+        html+=`<div class="mapping-row">
+          <div class="mapping-arrow" style="color:${c}">→</div>
+          <div class="mapping-target" style="background:${c}0a;border:1px solid ${c}30;color:${c}">${esc(n.p)}${n.w?`<span class="warn-badge">⚠${esc(n.w)}</span>`:''}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+      if(m.nt)html+=`<div class="note">${esc(m.nt)}</div>`;
+      html+=`</div></div>`;
+    });
+    list.innerHTML=html;
+  } else {
+    const fO=O.filter(m=>flt([m.o,m.s,m.nt,...m.nw.map(n=>n.p)]));
+    let html=`<div class="info-banner" style="background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF"><b>旧院別収支表</b>→<b>新院別収支表</b>のマッピング。出典: 20260216_新旧マッピング.xlsx マッピング提出用</div>`;
+    if(!fO.length){html+='<div class="empty-state"><div class="empty-icon">—</div><div class="empty-text">該当なし</div></div>';list.innerHTML=html;return}
+    fO.forEach((m,mi)=>{
+      const origIdx=O.indexOf(m);
+      const k="o_"+m.o;const isOpen=mpOpen.has(k);
+      html+=`<div class="card ${isOpen?'open':''}" data-mp-id="${esc(k)}">
+        <div class="card-head" onclick="toggleMP('${k.replace(/'/g,"\\'")}')">
+          <div style="flex:1;min-width:0"><div class="card-title">${esc(m.o)}</div>${m.s?`<div class="card-sub">旧区分: ${esc(m.s)}</div>`:''}</div>
+          ${globalEditMode&&origIdx>=0?`<span class="adv-edit-btn" onclick="event.stopPropagation();editOMapping(${origIdx})" style="font-size:9px">編集</span>`:``}
+          ${countChip(m.nw.length)}
+          <span class="arrow-toggle">▾</span>
+        </div>
+        <div class="card-body"><div style="display:flex;flex-direction:column;gap:3px">`;
+      m.nw.forEach(n=>{
+        const c=dc(n.p);
+        html+=`<div class="mapping-row">
+          <div class="mapping-arrow" style="color:${c}">→</div>
+          <div class="mapping-target" style="background:${c}0a;border:1px solid ${c}30;color:${c}">${esc(n.p)}${n.w?`<span class="warn-badge">⚠${esc(n.w)}</span>`:''}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+      if(m.nt)html+=`<div class="note">${esc(m.nt)}</div>`;
+      html+=`</div></div>`;
+    });
+    list.innerHTML=html;
+  }
+}
+
+function toggleMP(id){mpOpen.has(id)?mpOpen.delete(id):mpOpen.add(id);renderMP()}
+
+document.querySelectorAll('#mpTabs .sub-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    mpTab=btn.dataset.sub;
+    document.querySelectorAll('#mpTabs .sub-tab').forEach(b=>b.classList.toggle('active',b===btn));
+    mpOpen=new Set();renderMP();
+  });
+});
+document.getElementById('mpSearch').addEventListener('input',renderMP);
+document.getElementById('mpExpandAll').addEventListener('click',()=>{
+  if(mpTab==="boss")mpOpen=new Set(B.map(m=>"b_"+m.b));
+  else mpOpen=new Set(O.map(m=>"o_"+m.o));
+  renderMP();
+});
+document.getElementById('mpCollapseAll').addEventListener('click',()=>{mpOpen=new Set();renderMP()});
+
+// ========== 高度化ポイント ==========
+// ========== PL TREE ==========
+const plTreeOpen=new Set(['売上','売上原価','直接経費','間接経費','前受金']);
+function togglePLSec(id){plTreeOpen.has(id)?plTreeOpen.delete(id):plTreeOpen.add(id);renderPLTree()}
+
+function renderPLTree(){
+const el=document.getElementById('plTreeArea');
+if(!el) return;
+
+if(!window.plTreeData) window.plTreeData=[
+  {name:'売上',no:'01',color:'#059669',children:[
+    {name:'移動後診療総額',no:'01'},
+    {name:'うち物販売上',no:'02'},
+    {name:'ポイント利用分',no:'03'}
+  ]},
+  {name:'売上原価',no:'02',color:'#D97706',children:[
+    {name:'医薬品仕入',no:'01'},
+    {name:'輸入品仕入',no:'02'},
+    {name:'消耗品仕入',no:'03'}
+  ]},
+  
+  {name:'直接経費',no:'03',color:'#2563EB',children:[
+    {name:'人件費',no:'01',children:[
+      {name:'給与計',no:'01',children:[
+        {name:'給与',no:'01'},{name:'社宅家賃',no:'02'},{name:'報奨金',no:'03'},{name:'歩合',no:'04'}
+      ]},
+      {name:'賞与',no:'02'},
+      {name:'法定福利費',no:'03'}
+    ]},
+    {name:'広告宣伝費',no:'02',children:[
+      {name:'広告宣伝費 各院別',no:'01'}
+    ]},
+    {name:'決済手数料',no:'03'},
+    {name:'施設関連費',no:'04',children:[
+      {name:'水道光熱費',no:'01'},{name:'地代家賃',no:'02'}
+    ]},
+    {name:'通信費',no:'05',children:[
+      {name:'電話代',no:'01'},{name:'アカウント使用料',no:'02'},{name:'内線使用料',no:'03'}
+    ]},
+    {name:'採用費',no:'06'},
+    {name:'CC経費',no:'07',children:[
+      {name:'CC人件費',no:'01'},{name:'CC経費',no:'02'}
+    ]},
+    {name:'雑費',no:'08',children:[
+      {name:'院経費',no:'01',children:[
+        {name:'TWE分',no:'01'},{name:'バクラク経費精算分',no:'02'},{name:'現金小口分',no:'03'},
+        {name:'バクラク雑費費目',no:'04'},{name:'TWE大口経費分',no:'05'},{name:'バクラクカード',no:'06'}
+      ]},
+      {name:'NS経費',no:'02'},
+      {name:'Amazon費',no:'03'},
+      {name:'アスクル費',no:'04'},
+      {name:'PC消耗品費',no:'05'},
+      {name:'ボディーアーキチケット金額（マイナス計上）',no:'06'},
+      {name:'麻酔科委託費',no:'07'},
+      {name:'その他経費',no:'08',children:[
+        {name:'ロスの料金電子カルテ',no:'01'},{name:'后相費（償却残）',no:'02'},
+        {name:'香典',no:'03'},{name:'健康診断料',no:'04'},{name:'ワクチン代',no:'05'},
+        {name:'経費移動',no:'06'},{name:'入金機',no:'07'}
+      ]}
+    ]},
+    {name:'機器リース料',no:'09'},
+    {name:'減価償却費',no:'10'}
+  ]},
+  {name:'間接経費',no:'04',color:'#7C3AED',children:[
+    {name:'共通人件費',no:'01'},
+    {name:'共通広告宣伝費',no:'02',children:[
+      {name:'TVCM',no:'01'},{name:'PPC',no:'02'},{name:'電車広告',no:'03'},{name:'その他広告',no:'04'}
+    ]},
+    {name:'共通採用費',no:'03'},
+    {name:'共通施設関連費',no:'04',children:[
+      {name:'地代家賃（事務局）',no:'01'},{name:'水道光熱費（事務局）',no:'02'}
+    ]},
+    {name:'共通雑費',no:'05',children:[
+      {name:'共通通信費',no:'01',children:[
+        {name:'システム運用費（事務局）',no:'01'},{name:'電話代(事務局)',no:'02'},
+        {name:'アカウント使用料（事務局）',no:'03'},{name:'内線使用料（事務局）',no:'04'}
+      ]},
+      {name:'バクラク経費（事務局）',no:'02'},
+      {name:'小口経費（事務局）',no:'03'},
+      {name:'バクラクカード（事務局）',no:'04'},
+      {name:'Amazon費（事務局）',no:'05'},
+      {name:'PC消耗品費（事務局）',no:'06'},
+      {name:'香典',no:'07'},
+      {name:'共通研究開発費',no:'08'},
+      {name:'返金対応',no:'09'}
+    ]}
+  ]},
+  
+  {name:'前受金増加額',color:'#0891B2',children:[{name:'前受金'}]},
+  
+];
+
+let h=``;
+
+function renderNode(node, depth, color, prefix){
+  const c = node.color || color;
+  const num = node.no ? `<span style="color:#94A3B8;font-size:9px;font-weight:400;margin-right:2px">${prefix}${node.no}_</span>` : '';
+  const indent = depth * 16;
+
+  if(node.isCalc){
+    h+=`<div class="plt-calc" style="margin-left:${indent}px"><div class="plt-calc-op">=</div><div class="plt-calc-label" style="background:${c}12;color:${c};border:1px solid ${c}30">${node.name}</div><span style="font-size:9px;color:#94A3B8;margin-left:6px">${node.formula}</span></div>`;
+    return;
+  }
+
+  const hasKids = node.children && node.children.length;
+  const isTop = depth === 0;
+
+  if(isTop){
+    const count = countItems(node);
+    const isOpen = plTreeOpen.has(node.name);
+    h+=`<div class="plt-section ${isOpen?'open':''}">`;
+    h+=`<div class="plt-sec-head" onclick="togglePLSec('${node.name}')">
+      <div class="plt-sec-bar" style="background:${c}"></div>
+      <div class="plt-sec-title" style="color:${c}">${num}${node.name}</div>
+      <div class="plt-sec-count">${count}項目</div>
+      <span class="plt-sec-arrow">▾</span></div>`;
+    h+=`<div class="plt-sec-body">`;
+    if(hasKids) node.children.forEach(ch=>renderNode(ch, depth+1, c, ''));
+    h+=`</div></div>`;
+  } else if(hasKids){
+    h+=`<div style="margin-left:${indent}px;margin-top:4px">`;
+    h+=`<div class="plt-item"><div class="plt-branch"></div><div class="plt-leaf editable-highlight" style="cursor:pointer" onclick="goToSource('${node.name.replace(/'/g,"\\\\'")}')"><span class="plt-leaf-name">${num}<span style="color:${c}">●</span> <b>${node.name}</b></span>${globalEditMode?`<span class="adv-edit-btn" onclick="event.stopPropagation();editPLNode('${node.name.replace(/'/g,"\\\\'")}')">編集</span>`:''}</div></div>`;
+    node.children.forEach(ch=>renderNode(ch, depth+1, c, ''));
+    h+=`</div>`;
+  } else {
+    h+=`<div class="plt-item" style="margin-left:${indent}px"><div class="plt-branch"></div><div class="plt-leaf editable-highlight" style="cursor:pointer" onclick="goToSource('${node.name.replace(/'/g,"\\\\'")}')"><span class="plt-leaf-name">${num}<span style="color:${c}">●</span> ${node.name}</span>${globalEditMode?`<span class="adv-edit-btn" onclick="event.stopPropagation();editPLNode('${node.name.replace(/'/g,"\\\\'")}')">編集</span>`:''}</div></div>`;
+  }
+}
+
+function countItems(node){
+  if(!node.children) return 1;
+  return node.children.reduce((s,c)=>s+countItems(c),0);
+}
+
+const tree=window.plTreeData;
+
+tree.forEach(sec=>renderNode(sec, 0, '#64748B', ''));
+
+el.innerHTML=h;
+}
+
+function getLeafNames(node){
+  if(!node.children||!node.children.length) return [node.name];
+  return node.children.flatMap(ch=>getLeafNames(ch));
+}
+function findNodeInTree(name, nodes){
+  for(const n of nodes){
+    if(n.name===name) return n;
+    if(n.children){
+      const found=findNodeInTree(name, n.children);
+      if(found) return found;
+    }
+  }
+  return null;
+}
+
+function goToSource(name){
+  _navReturnPage=currentPage;
+  currentPage='datasource';
+  document.querySelectorAll('.main-tab').forEach(b=>{
+    b.classList.toggle('active',b.dataset.page==='datasource');
+  });
+  document.getElementById('page-datasource').style.display='';
+  document.getElementById('page-mapping').style.display='none';
+  document.getElementById('page-pltree').style.display='none';
+  document.getElementById('page-advanced').style.display='none';
+  document.getElementById('page-flow').style.display='none';
+  document.getElementById('page-diggle').style.display='none';
+  // 戻るボタン表示
+  showReturnBtn('page-datasource');
+  currentDS='pl';
+  document.querySelectorAll('#dsTabs .sub-tab').forEach(b=>{
+    b.classList.toggle('active',b.dataset.sub==='pl');
+  });
+  // 中間ノードの場合、配下leaf名を取得してOR検索用の文字列を設定
+  const node=findNodeInTree(name, plTreeData);
+  if(node && node.children && node.children.length){
+    const leaves=getLeafNames(node);
+    document.getElementById('dsSearch').value=leaves.join(' | ');
+  } else {
+    document.getElementById('dsSearch').value=name;
+  }
+  renderDS();
+  document.querySelector('.content-area').scrollIntoView({behavior:'smooth'});
+}
+
+function findSources(name){
+  const srcs=[];
+  P.forEach(sec=>{
+    sec.i.forEach(item=>{
+      if(item.n===name){
+        item.r.forEach(r=>{ if(!srcs.includes(r.f)) srcs.push(r.f); });
+      }
+    });
+  });
+  return srcs.length?srcs.join(', '):'';
+}
+
+const advOpen=new Set(["adv1"]);
+let currentAdvVer=1;
+
+const advVersions=[
+  {ver:1, label:"v1 — 初版", date:"2026.03 作成"},
+];
+
+
+
+function switchAdvVer(ver){
+  currentAdvVer=ver;
+  document.querySelectorAll('#advVerTabs .sub-tab').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.ver)===ver);
+  });
+  const v=advVersions.find(v=>v.ver===ver);
+  document.getElementById('advVerDate').textContent=v?v.date:'';
+  renderAdv();
+}
+
+function renderAdv(){
+const el=document.getElementById('advList');
+let h=``;
+
+// バージョン分岐 - 今後if(currentAdvVer>=2)で差分を追加可能
+if(currentAdvVer>=1){
+  // === v1 content (以下は既存のrenderAdvの中身) ===
+
+// ====== Helper: ○× table ======
+function oxTable(title,src,headers,rows,anchorId){
+  let t=`<div ${anchorId?`id="${anchorId}"`:''}style="margin-top:12px;margin-bottom:8px"><div style="font-size:11px;color:#64748B;font-weight:700;margin-bottom:4px">${title}</div>`;
+  t+=`<div style="font-size:9px;color:#94A3B8;margin-bottom:6px">出典: ${src}</div>`;
+  t+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px;min-width:600px">`;
+  t+=`<tr style="background:#F8FAFC"><th style="padding:6px 8px;text-align:left;border:1px solid #E2E8F0;font-weight:700;white-space:nowrap">項目</th>`;
+  headers.forEach(h2=>{ t+=`<th style="padding:6px 4px;text-align:center;border:1px solid #E2E8F0;font-weight:600;white-space:nowrap;font-size:9px">${h2}</th>`; });
+  t+=`</tr>`;
+  rows.forEach(r=>{
+    t+=`<tr><td style="padding:5px 8px;border:1px solid #E2E8F0;font-weight:600;white-space:nowrap">${r.n}</td>`;
+    r.v.forEach(v=>{
+      if(v==='〇') t+=`<td style="padding:4px;text-align:center;border:1px solid #E2E8F0;background:#F0FDF4;color:#166534;font-weight:700">〇</td>`;
+      else if(v==='✖'||v==='×') t+=`<td style="padding:4px;text-align:center;border:1px solid #E2E8F0;background:#FEF2F2;color:#DC2626;font-weight:700">✖</td>`;
+      else t+=`<td style="padding:4px;text-align:center;border:1px solid #E2E8F0;color:#64748B;font-size:8px">${v}</td>`;
+    });
+    t+=`</tr>`;
+  });
+  t+=`</table></div></div>`;
+  return t;
+}
+
+// ====== Headers for 人件費 ======
+const hJ=['美容','アネックス24','イテウォン','皮フ科','保険皮膚','NEO','青空','AGA','歯科','レディース','レーシック','整形','両国'];
+// ====== Headers for 運営費 ======
+const hU=['美容','アネックス24','イテウォン','皮フ科','保険皮膚','NEO','青空','AGA','歯科','眼科','不妊','整形','病院'];
+
+// === Section 1: 共通人件費 ===
+const s1=advOpen.has("adv1")?"open":"";
+h+=`<div class="adv-section ${s1}"><div class="adv-section-head" onclick="toggleAdv('adv1')">
+<div class="adv-section-num" style="background:#7C3AED">1</div>
+<div class="adv-section-info"><div class="adv-section-title">共通人件費（間接人件費）</div>
+<div class="adv-section-desc">従来は一括りにされていたものが、職種や稼働実態に基づいてより精緻な配賦に変更</div></div>
+<span class="adv-section-badge" style="background:#7C3AED10;color:#7C3AED;border:1px solid #7C3AED30">関連: 共通人件費</span>
+<span class="adv-arrow2">▾</span></div>
+<div class="adv-body">`;
+
+// Card 1-1: 勤務実績ベース
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">特定の対象スタッフを勤務実績ベースの配賦へ移行</div></div>
+<div class="adv-card-body">以下のスタッフについて、単なる売上按分ではなく、<b>実際の稼働実態を反映した配賦</b>に変更されました。</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">チャレンジクルー</span>
+<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">時短スタッフ</span>
+<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">試用期間（スタッフ＆Dr1年目）</span>
+<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">マネージャー（ZM, AM）</span>
+</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text">売上比率で<b>一律按分</b><br>実態との乖離が大きい</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text"><b>勤務実績</b>を加味して売上配賦<br>四半期ごとに更新</div></div></div>`;
+
+h+=`</div>`;
+
+// Card 1-2: 管理1・2廃止
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">「管理1・2」の区分廃止</div></div>
+<div class="adv-card-body">従来「管理1（マネージャー等）」「管理2（新人Dr、時短等）」とされていた漠然としたくくりを廃止し、<b>職種として切り出して管理</b>するように変更。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">旧制度</div><div class="adv-compare-text">管理1（マネージャー等）<br>管理2（新人Dr, 時短等）<br>→ 法人×管理区分の組合せ</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">新制度</div><div class="adv-compare-text">チャレンジクルー / 時短 / 試用期間<br>マネージャー / 事務局 / 全体Dr<br>→ <b>職種・役割</b>で直接管理</div></div></div></div>`;
+
+// Card 1-3: 事務局・全体Dr・理事長・Dr賞与
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">事務局・全体Dr・理事長経費・Dr賞与の配賦先</div></div>
+<div class="adv-card-body">事務局部署・全体ドクター・理事長経費・ドクター賞与について、恩恵を受ける業態を精査し<b>配賦対象を明確化</b>。</div>`;
+h+=oxTable('事務局・全体Dr・理事長・Dr賞与 ○×表','20260301_全体割人件費.xlsx「対照表」',hJ,[
+{n:'事務局：外科経営戦略室',v:['〇','〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
+{n:'事務局：皮フ科経営戦略室',v:['〇','〇','✖','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖']},
+{n:'事務局：ドクター教育部',v:['〇','〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖']},
+{n:'事務局：看護教育部',v:['〇','〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖']},
+{n:'事務局：全体配賦',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'全体Dr：中村先生(60%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'全体Dr：加藤先生(67%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'全体Dr：金先生(33%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'全体Dr：新明先生(100%)',v:['〇','〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
+{n:'全体Dr：居川先生(100%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖']},
+{n:'全体Dr：竹田先生(1100万)',v:['〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖']},
+{n:'全体Dr：横谷先生(20%)',v:['〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
+{n:'全体Dr：西川先生(67%)',v:['〇','〇','✖','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖']},
+{n:'理事長：加藤先生/孝和会(100万)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'理事長：竹田先生/菜寿会(100万)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'理事長：赤尾先生/愛恵会(100万)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'理事長：居川先生/リッツ(100万)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'Dr賞与(発生額を12分割で計上)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+],'ox-jinkenhi');
+h+=`</div>`;
+
+h+=`</div></div>`; // close section 1
+
+// === Section 2: 共通広告宣伝費 ===
+const s2=advOpen.has("adv2")?"open":"";
+h+=`<div class="adv-section ${s2}"><div class="adv-section-head" onclick="toggleAdv('adv2')">
+<div class="adv-section-num" style="background:#D97706">2</div>
+<div class="adv-section-info"><div class="adv-section-title">共通広告宣伝費</div>
+<div class="adv-section-desc">広告の目的（ブランド周知 vs 特定治療促進）に応じて、負担すべき業態を厳密に切り分け</div></div>
+<span class="adv-section-badge" style="background:#D9770610;color:#D97706;border:1px solid #D9770630">関連: PPC / TVCM</span>
+<span class="adv-arrow2">▾</span></div>
+<div class="adv-body">`;
+
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">特定治療広告の配賦ルール厳格化</div></div>
+<div class="adv-card-body">二重や豊胸など、<b>特定の治療に関する広告費</b>は、それらを取り扱っている業態のみで配賦するように変更。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text">特定治療の広告も含め<br>「美容全体」に<b>一括按分</b></div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text">治療内容を<b>取り扱う業態のみ</b><br>が広告費を負担</div></div></div></div>`;
+
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">PPC広告の配賦比率見直し</div></div>
+<div class="adv-card-body">広告から実際に予約・施術に結びついた割合を分析し、従来の比率から、より実態に近い<b>「20%」</b>というパーセンテージを用いて配賦する運用に変更。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text">外科 : 皮フ科 = <b>70 : 30</b><br>（一律固定比率）</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text">予約経路分析に基づき<br>皮フ科への配賦率 = <b>20%</b></div></div></div></div>`;
+
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">ブランド広告の対象外設定</div></div>
+<div class="adv-card-body">SBCブランド全体のCMなどは、そのブランドを掲げていない、あるいは恩恵が薄い<b>メディカル業態やNEO</b>を費用負担から除外。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text">ブランドCMも<br><b>全業態</b>で按分</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text">SBCブランド広告 → 恩恵業態のみ<br>NEO・メディカル業態は<b>除外</b></div></div></div></div>`;
+
+h+=`</div></div>`; // close section 2
+
+// === Section 3: 共通経費 ===
+const s3=advOpen.has("adv3")?"open":"";
+h+=`<div class="adv-section ${s3}"><div class="adv-section-head" onclick="toggleAdv('adv3')">
+<div class="adv-section-num" style="background:#2563EB">3</div>
+<div class="adv-section-info"><div class="adv-section-title">共通経費（全体運営費・雑費）</div>
+<div class="adv-section-desc">「その他経費」としてまとめられていた項目を整理し、透明性と公平性を向上</div></div>
+
+<span class="adv-arrow2">▾</span></div>
+<div class="adv-body">`;
+
+// CC費用
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">コールセンター（CC）費用の直接経費化</div></div>
+<div class="adv-card-body">従来は全体割（間接経費）として処理 → <b>（電話件数＋メール件数×0.4）を件数として院別に件数按分</b>する直接配賦へ転換。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text"><b>間接経費</b>（全体割）<br>売上比率で一律配賦</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text"><b>直接経費</b>化<br>(電話件数＋メール件数×0.4)を<br>件数として院別に件数按分</div></div></div></div>`;
+
+// 採用費
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">採用費の目的別切り出し</div></div>
+<div class="adv-card-body">新卒採用費は主に配属される「美容全体」へ、AGA・レディース等の特定業態に関わる採用費は各業態へ。<b>「誰のための採用活動か」</b>に基づいた配賦が徹底。</div>
+<div class="adv-compare"><div class="adv-compare-side adv-compare-before"><div class="adv-compare-label">従来</div><div class="adv-compare-text">採用費は<b>一律</b>で<br>全業態按分</div></div>
+<div class="adv-compare-arrow">→</div>
+<div class="adv-compare-side adv-compare-after"><div class="adv-compare-label">高度化後</div><div class="adv-compare-text">新卒 → 美容全体（青空除く）<br>AGA専門 → AGAのみ<br>歯科専門 → 歯科のみ etc.</div></div></div>`;
+h+=oxTable('採用費の配賦先 ○×表','20250808_全体割運営費_DIGGLE様共有用.xlsx「対照表」',hU,[
+{n:'法人別全体(湘/孝/菜/愛/樹/リ/風)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'新卒採用費',v:['〇','〇','〇','〇','〇','〇','✖','〇','〇','〇','〇','〇','✖']},
+],'ox-saiyou');
+h+=`</div>`;
+
+// Full 運営費 ○×
+h+=`<div class="adv-card"><div class="adv-card-head">
+<div class="adv-card-title">全体割運営費 ○×一覧</div></div>
+<div class="adv-card-body">費目別・部門別に対象業態が設定されています。</div>`;
+h+=oxTable('【費目別】','20250808_全体割運営費_DIGGLE様共有用.xlsx「対照表」',hU,[
+{n:'1:  情シスPJ費用/事務局内線/アカウント料',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'3:  TWE関連費',v:['〇','〇','〇','〇','〇','〇','✖','〇','〇','〇','〇','〇','〇']},
+{n:'14:  メディカルフォース利用料',v:['✖','✖','✖','✖','✖','✖','〇','✖','✖','✖','✖','✖','✖']},
+{n:'2:  経費(採用費以外)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'9:  返金処理(解約センター)',v:['〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖','✖']},
+{n:'2:  Lab純損失',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'2:  採用費（一般）',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'4:  採用費（新卒）',v:['〇','〇','〇','〇','〇','〇','✖','〇','〇','〇','〇','〇','✖']},
+{n:'−:  採用費（特定業態→その業態のみ）',v:['−','−','−','−','−','−','−','−','−','−','−','−','−']},
+],'ox-himoku');
+h+=`<div style="margin:10px 0 2px;text-align:center;font-size:11px;color:#94A3B8;font-weight:700">↓ 上記以外 ↓</div>`;
+h+=oxTable('【部門別】','20250808_全体割運営費_DIGGLE様共有用.xlsx「対照表」',hU,[
+{n:'1:  戸塚労務部/横浜本部',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
+{n:'2:  東日本・西日本事務局',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖']},
+{n:'10:  研修豊洲/豊洲会議室',v:['〇','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖','✖','✖']},
+{n:'5:  SKビル(在庫)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','✖','✖','✖']},
+],'ox-bumon');
+h+=`</div>`;
+
+h+=`</div></div>`; // close section 3
+
+} // end if(currentAdvVer>=1)
+
+// バージョンフッター
+const v=advVersions.find(v=>v.ver===currentAdvVer);
+h+=`<div style="text-align:center;padding:16px 0 4px;font-size:10px;color:#CBD5E1">高度化ポイント ${v?v.label:''}</div>`;
+
+el.innerHTML=h;
+}
+
+function toggleAdv(id){advOpen.has(id)?advOpen.delete(id):advOpen.add(id);renderAdv()}
+
+// ========== 作成フロー ==========
+const flowData=[
+  {phase:"Step 1",title:"取込前準備",timing:"",steps:[
+    {no:1,task:"各ファイルの格納確認・ファイルチェック",detail:"Google Drive各フォルダに当月分ファイルが格納されているか確認。CSV化されているか、計上月が正しいか、ヘッダー行が含まれているかをチェック。",link:""},
+    {no:2,task:"バクラクデータ：開院前費用の確認",detail:"開院前の費用が含まれていないか確認し、該当があれば除外処理を行う。",link:""},
+    {no:3,task:"バクラクデータ：償却構成の修正→社長確認→格納",detail:"償却判断が必要なデータの構成を修正し、社長に確認を依頼。承認後にGoogle Driveへ格納する。",link:""},
+    {no:4,task:"前月Lab新宿の赤字金額を入力（該当月のみ）",detail:"前月Lab新宿が赤字だった場合、その金額を所定のファイルに入力する。※詳細手順は別途追記予定。",link:""},
+    {no:5,task:"ファイル作成：広告費",detail:"広告宣伝費のファイルを作成し、Google Driveへ格納。",link:""},
+    {no:6,task:"ファイル作成：勤怠実績計算分（共通人件費）",detail:"勤怠実績に基づく共通人件費の計算ファイルを作成し、Google Driveへ格納。",link:""},
+    {no:7,task:"【暫定】その他ファイル作成",detail:"以下は今後廃止予定だが現時点では作成が必要：オンライン仕入／地代家賃（抜き出し）／后相費作成／共通雑費作成／「ためておく」シートの加算。",link:""},
+  ]},
+  {phase:"Step 2",title:"取込・インポート",timing:"準備できたファイルから順次実施",steps:[
+    {no:8,task:"各費目でGASを実行",detail:"Google Apps Scriptを実行し、各費目のデータを所定の形式に変換・整形する。",link:""},
+    {no:9,task:"各費目のインポート",detail:"準備ができた費目から順次DIGGLEへインポートする。※今後は全費目の自動インポートへ移行予定。",link:""},
+  ]},
+  {phase:"Step 3",title:"配賦実行",timing:"全費目のインポート完了後",steps:[
+    {no:10,task:"配賦スナップショットの実行",detail:"全費目のインポートが完了したことを確認し、DIGGLEで配賦スナップショットを実行する。",link:""},
+  ]},
+  {phase:"Step 4",title:"Looker実装・展開",timing:"配賦完了後",steps:[
+    {no:11,task:"レポートCSV出力→指定ドライブに格納",detail:"DIGGLEから院別収支レポートをCSV出力し、所定のGoogle Driveフォルダに格納する。※のちに自動化予定。",link:""},
+    {no:12,task:"Lookerへ自動取り込み（毎日11時）",detail:"Google Driveに格納されたCSVが毎日11時にLookerへ自動取り込みされる。",link:""},
+    {no:13,task:"現場展開（メール）",detail:"完成したダッシュボードのリンクや要点をメールで現場に展開する。",link:""},
+  ]},
+];
+
+// ========== DIGGLE ==========
+const diggleManuals=[
+  {title:"DIGGLE運用マニュアル（管理者向け）",desc:"DIGGLE社提供｜2025/11/27更新｜概要・ナビゲーション・用語・レポート操作等",url:"DIGGLE_admin_manual.pdf",icon:"📘",category:"admin"},
+  {title:"新院別 取り込み方法（CSV/GSS）概要",desc:"DIGGLE社提供｜2026/02/25｜業務フロー・データ連携・配賦スナップショット設定",url:"DIGGLE_import_guide.pdf",icon:"📗",category:"admin"},
+  {title:"DIGGLE運用マニュアル（ユーザー向け）",desc:"DIGGLE社提供｜2026/01/27｜レポート閲覧・P/L分析の条件編集・月次レポート等",url:"DIGGLE_user_manual.pdf",icon:"📙",category:"user"},
+];
+
+const diggleGlossary=[
+  {term:"計画",def:"期初に立てられる数値計画。予算と呼ばれることもある。"},
+  {term:"見込",def:"期中に更新される期末着地値の予測。着地見込・着地予想とも呼ばれる。"},
+  {term:"実績",def:"財務会計上確定された実際の値。"},
+  {term:"部門",def:"DIGGLEへ登録する組織の最小粒度。"},
+  {term:"勘定科目",def:"PLの財務指標の科目。非財務指標も勘定科目として設定可能。"},
+  {term:"予算内容",def:"部門・勘定科目以外で3つ目の集計要素を追加する枠。"},
+  {term:"集計キー",def:"部門・勘定科目・予算内容の組み合わせ。この一致で計画・見込・実績を突合する。"},
+  {term:"予算ID",def:"集計キーに対してシステム内部的に発行されるID。"},
+  {term:"明細",def:"各集計キーの計画値や見込値の登録単位。明細の合計が集計キーの数値となり突合の最小粒度になる。"},
+  {term:"スナップショット",def:"任意の時点のデータを保存した状態。配賦スナップショットは配賦後のデータを保存したもの。"},
+  {term:"配賦",def:"共通費などを各部門に按分・割り当てる処理。DIGGLEでは配賦スナップショットとして出力する。"},
+  {term:"P/L分析",def:"任意のPLレポートを作成できる分析機能。日常の予実分析やリアルタイムの数値確認に使用。"},
+  {term:"月次レポート",def:"月次でPLレポートをタブごとに作成できる報告用機能。経営報告や取締役会等で利用。"},
+  {term:"差異分析",def:"P/L分析よりも詳細な単位（部門×勘定科目×予算内容）で予実差異を把握するための機能。"},
+  {term:"サマリー",def:"全社の主要財務数値をグラフ形式で閲覧できる機能。主要数値の全体感把握に使用。"},
+  {term:"カスタムP/L",def:"月次レポート内で任意の条件でP/Lを作成するページタイプ。権限に関わらず設定条件の値を閲覧可能。"},
+  {term:"データ連携（CSV）",def:"Google DriveフォルダのCSVファイルをDIGGLEに取り込む方式。年度ごとに取り込みが必要。"},
+  {term:"データ連携（GSS）",def:"Google スプレッドシート経由でDIGGLEにデータを取り込む方式。GASでCSVをGSSに転記して連携。"},
+  {term:"GAS",def:"Google Apps Scriptの略。CSVファイルをスプレッドシートに自動転記する際に使用。"},
+  {term:"バージョン",def:"計画・見込データの管理単位。年度ごとに計画バージョンと見込バージョンが存在する。"},
+];
+
+// ========== DIGGLE AI Knowledge Base（非表示・AIチャット回答ソース用） ==========
+const diggleKnowledge=`
+【出典1: DIGGLE運用マニュアル（ユーザー向け）2026/01/27】
+■ DIGGLE概要：予算-実績-見込を一体管理し、経営情報を早く正確にレポートできる予実管理クラウド。予実管理業務を全てWEB UI上で完結させる。
+■ 予実管理粒度：「部門×勘定科目×予算内容」の3要素の組み合わせで、従来より詳細な粒度で予実管理が可能。
+■ 主要機能：予実突合、見込管理、ドリルダウン分析、スナップショット分析、予算策定、予算ID機能の6つ。
+■ グローバルナビゲーション：レポート(PL形式で予実比較)、申請(計画・見込の変更申請/承認)、計画/見込(データ編集)、実績(データ取込・閲覧)、ツール(GSS・Excel連携設定)、全体設定(部門・科目・ユーザーのマスタ設定)、ヘルプ(FAQ・問合せ)、お知らせ(四半期アップデート)、通知(操作履歴・メンション)、アカウント(二段階認証・パスワード変更・メール通知設定)。
+■ 用語定義：計画=期初の数値計画(予算)、見込=期中更新の期末着地値予測、実績=財務会計上確定値、部門=組織の最小粒度、勘定科目=PLの財務指標科目(非財務も可)、予算内容=3つ目の集計要素、集計キー=部門×勘定科目×予算内容の組合せ、予算ID=集計キーのシステムID、明細=計画値・見込値の登録単位。
+■ レポート種類(5種)：(1)サマリー＝全社主要財務数値をグラフで閲覧、コメント不可、科目カテゴリ・段階損益粒度。(2)月次レポート＝月次PLをタブごとに作成、レポート全体やセル単位でコメント可、タブ単位の権限。(3)P/L分析＝任意のPLレポート作成、コメント不可、部門×勘定科目粒度、閲覧権限準拠。(4)差異分析＝P/L分析より詳細に予実差異把握、集計キー単位でコメント可、部門×勘定科目×予算内容粒度。(5)事業セグメント分析。
+■ P/L分析の条件編集手順：(1)レポート→P/L分析→新しいレポート→軸を編集する。(2)部門をドラッグ＆ドロップで勘定科目の左に移動→条件を変更する。(3)条件を反映する→条件を保存する→名前入力→保存。(4)フォルダアイコン→保存した条件を開く→あなたのレポートタブ。
+■ 軸の構成：部門・勘定科目・カスタムフィールドを最大3×3で任意選択可能。選択可能な軸は部門、勘定科目、事業セグメント、時系列(当月/累計/Q別/半期)、対象データ、部門カスタムフィールド、集計キーカスタムフィールド。
+■ 要素の編集：ソース選択(カテゴリ/科目グループ/勘定科目/計算指標)、計算式(四則演算+定数)、表示名変更、表示形式(太字/斜体/パーセント/条件付き書式)、要素の追加・削除、階層表現(ドラッグで作成)。
+■ レポート共有手順：あなたのレポート→対象の「…」→共有レポートに移動する。共有レポートからデフォルトレポートに指定も可能。
+■ 月次レポート：2ステップで作成(月次レポート作成→バージョン編集：見込バージョン選択・スナップショット作成、計画バージョン選択)。ページ別管理で複数フォーマット保持。前月の設定は翌月に引き継がれる。ページ追加(4ステップ)：ページ追加→ページタイプ選択(カスタムP/L)→コピー元選択→タイトル・共有メンバー設定。
+■ P/L分析とカスタムP/Lの違い：P/L分析はユーザー権限に依存。カスタムP/Lはフォーマット設定条件に準拠し権限に関わらず同じ値を閲覧可能。
+■ コメント：月次レポートではレポート全体やセルに差異要因コメント記載可能。右側パネルで要因・説明・設定あり。
+■ テンプレートページ数値更新：右上[…]→レポートの詳細→当月・計画・前年・前月のスナップショット更新。
+■ カスタムP/Lページ編集：青字のレポート名をクリック→P/L分析画面に遷移→バージョンやスナップショット設定、軸編集が可能。
+
+【出典2: 新院別 取り込み方法（CSV/GSS）概要 2026/02/25】
+■ 毎月の業務手順(GSS分)：(1)GASをファイルごとに実行しCSVデータをGSSに移す→(2)対象のデータ連携でGSS数値をDIGGLEに取り込む→(3)DIGGLEで配賦のスナップショットを行う→(4)新院別の月次レポートすべてに配賦スナップショットを設定する。
+■ 毎月の業務手順(CSV分)：(1)CSVをデータ連携で取り込む(年度が変わる場合は年度ごと。2025再取込時は越年分データも別途2026年バージョンに取り込み必要)→(2)DIGGLEで配賦のスナップショットを行う→(3)月次レポートすべてに配賦スナップショット設定。
+■ 残論点：CSV連携廃止→GSS移行検討中。医療法人PLもGSS対応予定。GSSシート増加時の分割方針。GASでのCSV管理方法。
+■ データ連携CSV：インポートを開始するクリックで再取込可能(CSVは年度毎に対応必要)。設定画面で取り込み先URL、対象CSVフィルター、プレビュー確認、自動取込設定可能。
+■ データ連携GSS：GASでCSVをスプレッドシートに移行。各フォルダに「スプレッドシート/GAS」フォルダを作成。指定フォルダリンクのCSVすべてをGSSに転記(貼付済は更新)。インポートを開始するで一括取込可能(ファイル多いと時間かかる。初回は実績ファイル同様の確認必要)。
+■ GAS補足：実行方法＝実行ボタン押下。転記対象フォルダURL＝folderUrl。貼付先＝spreadsheetUrl。特定ファイル絞り＝searchKeywordに記入。テンプレートシート(100行)をベースに新規シート作成。書式変換オフ。GSSに転記済ファイルは更新、ないものは追加。ファイル削除時は手動でシート削除必須。
+■ 配賦：計画/見込バージョン画面で「…」→「このバージョンの配賦をスナップショットに出力」。CSVは見込2を、GSSは通常の見込みで配賦を行う。同時保持スナップショット数に制限あり(上限50件)、不要なものは削除。保存上限対象の配賦スナップショット管理画面から削除可能。
+■ 配賦スナップショット設定方法：月次レポートで対象タブを開く→条件クリックでPL分析を開く→スナップショットに設定したい日時をセット→条件を反映して保存。
+
+【出典3: DIGGLE運用マニュアル（管理者向け）2025/11/27更新】
+※ユーザー向けと共通する内容が多いが、管理者向けでは全体設定・マスタ管理・権限設定等の管理機能も含む。
+
+【出典4: DIGGLEレポート機能 概要と設定ガイド（経営企画部 2023年10月版）※非公開ソース】
+■ 月次レポート＝定型報告(経営会議・定例報告用)。固定フォーマットで確認。詳細は数値クリック→差異分析(ドリルダウン)で内訳確認。
+■ 共有レポート＝自由分析(ユーザーによる多角的分析)。ドラッグ＆ドロップで部門・科目を自由に入替可能。「条件保存」で型をチーム共有。
+■ 共有レポート公開手順：(1)条件保存：P/L分析で軸決定→「条件を保存する」実行。(2)フォルダ移動：個人用→対象レポートのメニュー(…)→「共有レポートに移動する」選択。(3)公開完了：全ユーザーの「共有レポート」タブに表示。
+■ 【重要】権限管理と数値表示の挙動：「レポートの枠組み(軸)」と「数値データ(中身)」の権限は別管理。
+■ 共有レポート(厳格な制御)：ユーザー個人の「ロール設定(閲覧権限)」に完全準拠。レポート自体は開けても権限のない部門・科目の数値は一切表示されない。
+■ 月次レポート(フォーマット優先・要注意)：レポートの軸設定(フォーマット)が優先される場合がある。Risk＝閲覧権限がない科目でもレポートの行・列に設定されていれば「合計値」は表示される。Safety＝数値クリックで差異分析(ドリルダウン)しようとすると権限チェック作動し内訳データ非表示。Use Case＝「人件費の合計は見えるが個人の給与明細(詳細)は見せない」制御が可能。
+■ Management Tip：社長・経営層がドリルダウンで詳細確認するには対象部門・科目の「閲覧権限(ロール)」付与が必須。
+`;
+
+function renderDiggle(){
+  const el=document.getElementById('diggleArea');
+  let h='';
+
+  // 1. DIGGLEを開く + 設定・運用AIチャット（横並び）
+  h+=`<div style="display:flex;gap:10px">
+    <a href="https://sbc-med.diggle.jp/" target="_blank" style="flex:1;display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;text-decoration:none;color:#1E293B;transition:all .15s">
+      <svg width="28" height="28" viewBox="0 0 200 200" fill="none"><path d="M40 40c0 0 20-10 60-10c45 0 80 35 80 80s-35 80-80 80c-40 0-60-10-60-10V40z" fill="#29A3F7"/><rect x="68" y="95" width="16" height="45" rx="3" fill="#fff"/><rect x="92" y="75" width="16" height="65" rx="3" fill="#fff"/><rect x="116" y="85" width="16" height="55" rx="3" fill="#fff"/></svg>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px">DIGGLEを開く</div><div style="font-size:9px;color:#94A3B8;margin-top:2px">sbc-med.diggle.jp</div></div>
+      <span style="font-size:16px;color:#94A3B8">↗</span>
+    </a>
+    <a href="https://notebooklm.google.com/notebook/81f8ee00-debf-4c0a-82b6-6ed5dea7b2ee" target="_blank" style="flex:1;display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border:1.5px solid #E2E8F0;border-radius:10px;text-decoration:none;color:#1E293B;transition:all .15s">
+      <span style="font-size:24px">💬</span>
+      <div style="flex:1"><div style="font-weight:700;font-size:13px">設定・運用について知りたい</div><div style="font-size:9px;color:#94A3B8;margin-top:2px">操作方法・データ連携・権限など</div></div>
+      <span style="font-size:16px;color:#94A3B8">↗</span>
+    </a>
+  </div>`;
+
+  // 3. DIGGLE用語集（マニュアルより上）
+  h+=`<div class="dg-card" style="margin-top:12px">
+    <div class="dg-card-head" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleGlossary()">
+      <span>DIGGLE用語集</span>
+      <span id="glossaryToggle" style="font-size:12px;color:#94A3B8;transition:transform .2s">▼</span>
+    </div>
+    <div id="glossaryBody" class="dg-card-body" style="display:none">
+      <div style="margin-bottom:6px">
+        <input type="text" id="glossarySearch" placeholder="用語を検索…" oninput="filterGlossary()" style="width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:11px;outline:none;background:#F8FAFC">
+      </div>
+      <div id="glossaryList">`;
+  diggleGlossary.forEach((g,i)=>{
+    h+=`<div class="glossary-item" data-term="${g.term}" style="padding:6px 4px;border-bottom:1px solid #F1F5F9;font-size:11px">
+      <span style="font-weight:700;color:#1E40AF">${g.term}</span>
+      <span style="color:#64748B;margin-left:6px">${g.def}</span>
+    </div>`;
+  });
+  h+=`</div></div></div>`;
+
+  // 4. マニュアル（カテゴリ別・折りたたみ）
+  h+=`<div class="dg-card" style="margin-top:12px">
+    <div class="dg-card-head">マニュアル・参考資料</div>
+    <div class="dg-card-body">`;
+
+  // 管理者向け（FAQもここに含む）
+  h+=`<div style="font-size:9px;font-weight:700;color:#64748B;padding:4px 0 4px 4px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleManualSection('admin')">
+    <span>管理者向け</span>
+    <span id="manualAdminToggle" style="font-size:10px;color:#94A3B8">▼</span>
+  </div>
+  <div id="manualAdminBody">`;
+  const adminManuals=diggleManuals.filter(m=>m.category==='admin');
+  adminManuals.forEach(m=>{
+    if(m.url){
+      h+=`<a href="${m.url}" target="_blank" onclick="return openManualPDF(event,'${m.url}','${m.title}')" class="dg-manual-row" style="text-decoration:none;color:inherit;cursor:pointer">
+        <span style="font-size:18px">${m.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:11px;color:#1E293B">${m.title}</div>
+          <div style="font-size:9px;color:#94A3B8">${m.desc}</div>
+        </div>
+        <span style="font-size:9px;color:#10B981;font-weight:600">PDF ↗</span>
+      </a>`;
+    } else {
+      h+=`<div class="dg-manual-row" style="cursor:default">
+        <span style="font-size:18px">${m.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:11px;color:#1E293B">${m.title}</div>
+          <div style="font-size:9px;color:#94A3B8">${m.desc}</div>
+        </div>
+      </div>`;
+    }
+  });
+  // DIGGLE公式FAQ（管理者向けカテゴリ内）
+  h+=`<a href="https://help.diggle.jp/ja/" target="_blank" class="dg-manual-row" style="text-decoration:none;color:inherit">
+    <span style="font-size:18px">❓</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700;font-size:11px;color:#1E293B">DIGGLE公式FAQ</div>
+      <div style="font-size:9px;color:#94A3B8">help.diggle.jp</div>
+    </div>
+    <span style="color:#94A3B8;font-size:11px">↗</span>
+  </a>
+  </div>`;
+
+  // ユーザー向け
+  const userManuals=diggleManuals.filter(m=>m.category==='user');
+  if(userManuals.length){
+    h+=`<div style="font-size:9px;font-weight:700;color:#64748B;padding:8px 0 4px 4px;border-top:1px solid #F1F5F9;margin-top:6px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleManualSection('user')">
+      <span>ユーザー向け</span>
+      <span id="manualUserToggle" style="font-size:10px;color:#94A3B8">▼</span>
+    </div>
+    <div id="manualUserBody">`;
+    userManuals.forEach(m=>{
+      if(m.url){
+        h+=`<a href="${m.url}" target="_blank" onclick="return openManualPDF(event,'${m.url}','${m.title}')" class="dg-manual-row" style="text-decoration:none;color:inherit;cursor:pointer">
+          <span style="font-size:18px">${m.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:11px;color:#1E293B">${m.title}</div>
+            <div style="font-size:9px;color:#94A3B8">${m.desc}</div>
+          </div>
+          <span style="font-size:9px;color:#10B981;font-weight:600">PDF ↗</span>
+        </a>`;
+      } else {
+        h+=`<div class="dg-manual-row" style="cursor:default">
+          <span style="font-size:18px">${m.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:11px;color:#1E293B">${m.title}</div>
+            <div style="font-size:9px;color:#94A3B8">${m.desc}</div>
+          </div>
+        </div>`;
+      }
+    });
+    h+=`</div>`;
+  }
+
+  h+=`</div></div>`;
+
+  el.innerHTML=h;
+}
+
+
+function toggleGlossary(){
+  const body=document.getElementById('glossaryBody');
+  const toggle=document.getElementById('glossaryToggle');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    toggle.textContent='▲';
+  } else {
+    body.style.display='none';
+    toggle.textContent='▼';
+  }
+}
+
+function toggleManualSection(cat){
+  const id=cat.charAt(0).toUpperCase()+cat.slice(1);
+  const body=document.getElementById('manual'+id+'Body');
+  const toggle=document.getElementById('manual'+id+'Toggle');
+  if(!body)return;
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(toggle) toggle.textContent='▼';
+  } else {
+    body.style.display='none';
+    if(toggle) toggle.textContent='▼';
+  }
+}
+
+function openManualPDF(event,url,title){
+  // Try to open the PDF - if it fails (e.g. not in same folder), show guidance
+  try{
+    const w=window.open(url,'_blank');
+    if(!w){
+      event.preventDefault();
+      alert('PDFを開けませんでした。\n\n「'+title+'」を開くには、HTMLファイルとPDFファイルを同じフォルダに配置してください。');
+      return false;
+    }
+    // Check if the opened window loaded successfully after a short delay
+    setTimeout(()=>{
+      try{
+        if(w.document&&w.document.title===''){
+          // Might have failed silently
+        }
+      }catch(e){}
+    },1000);
+  }catch(e){
+    event.preventDefault();
+    alert('PDFを開けませんでした。\n\n「'+title+'」を開くには、HTMLファイルとPDFファイルを同じフォルダに配置してください。');
+    return false;
+  }
+  return true;
+}
+
+function filterGlossary(){
+  const q=document.getElementById('glossarySearch').value.trim().toLowerCase();
+  const items=document.querySelectorAll('.glossary-item');
+  items.forEach(item=>{
+    const term=item.getAttribute('data-term').toLowerCase();
+    const text=item.textContent.toLowerCase();
+    item.style.display=(q===''||term.includes(q)||text.includes(q))?'block':'none';
+  });
+}
+
+function renderFlow(){
+  const el=document.getElementById('flowArea');
+  if(!el)return;
+  let h='<div class="info-banner" style="background:#FFF7ED;border:1px solid #FED7AA;color:#92400E">毎月の新院別収支表の完成までの流れ。月初3営業日目までに完成が目標。</div>';
+
+  flowData.forEach((phase,pi)=>{
+    h+=`<div class="flow-phase">
+      <div class="flow-phase-head">
+        <div class="flow-phase-badge">${esc(phase.phase)}</div>
+        <div class="flow-phase-info">
+          <div class="flow-phase-title">${esc(phase.title)}</div>
+          <div class="flow-phase-timing">${esc(phase.timing)}</div>
+        </div>
+        ${globalEditMode?`<span class="adv-edit-btn" onclick="editFlowPhase(${pi})" style="margin-left:auto">フェーズ編集</span>`:''}
+      </div>
+      <div class="flow-steps">`;
+    phase.steps.forEach((step,si)=>{
+      h+=`<div class="flow-step">
+        <div class="flow-step-num">${step.no}</div>
+        <div class="flow-step-body">
+          <div class="flow-step-task">${esc(step.task)}</div>
+          <div class="flow-step-detail">${esc(step.detail)}</div>
+          ${step.link?`<a href="${step.link}" target="_blank" class="flow-step-link">関連リンク ↗</a>`:''}
+        </div>
+        ${globalEditMode?`<div style="display:flex;flex-direction:column;gap:3px">
+          <span class="adv-edit-btn" onclick="editFlowStep(${pi},${si})">編集</span>
+          <span class="adv-edit-btn danger" onclick="deleteFlowStep(${pi},${si})">削除</span>
+        </div>`:''}
+      </div>`;
+      if(si<phase.steps.length-1) h+='<div class="flow-connector"></div>';
+    });
+    if(globalEditMode){
+      h+=`<div style="text-align:center;padding:8px 0"><button class="adv-edit-btn" style="padding:4px 12px;font-size:10px" onclick="addFlowStepToPhase(${pi})">＋ ステップ追加</button></div>`;
+    }
+    h+=`</div></div>`;
+    if(pi<flowData.length-1) h+='<div class="flow-phase-connector"></div>';
+  });
+
+  if(globalEditMode){
+    h+=`<div style="text-align:center;padding:16px"><button class="adv-edit-btn primary" style="padding:6px 16px;font-size:11px" onclick="addFlowPhase()">＋ フェーズ追加</button></div>`;
+  }
+
+  el.innerHTML=h;
+}
+
+function editFlowPhase(pi){
+  const phase=flowData[pi];
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  const modal=document.createElement('div');modal.className='edit-modal';
+  modal.innerHTML='<h3>フェーズ編集</h3><div class="edit-field"><label>フェーズ名（例: Step 1）</label><input id="ae-fp"></div><div class="edit-field"><label>タイトル</label><input id="ae-fpt"></div><div class="edit-field"><label>タイミング</label><input id="ae-fptm"></div><div class="edit-modal-actions"></div>';
+  ov.appendChild(modal);
+  document.body.appendChild(ov);
+  document.getElementById('ae-fp').value=phase.phase||'';
+  document.getElementById('ae-fpt').value=phase.title||'';
+  document.getElementById('ae-fptm').value=phase.timing||'';
+  const actions=modal.querySelector('.edit-modal-actions');
+  const btnCancel=document.createElement('button');btnCancel.className='adv-edit-btn';btnCancel.textContent='キャンセル';
+  btnCancel.onclick=function(){ov.remove();};
+  const btnDel=document.createElement('button');btnDel.className='adv-edit-btn danger';btnDel.textContent='フェーズ削除';
+  btnDel.onclick=function(){if(confirm('このフェーズと含まれるステップをすべて削除しますか？')){flowData.splice(pi,1);ov.remove();renderFlow();}};
+  const btnSave=document.createElement('button');btnSave.className='adv-edit-btn primary';btnSave.textContent='保存';
+  btnSave.onclick=function(){
+    flowData[pi].phase=document.getElementById('ae-fp').value;
+    flowData[pi].title=document.getElementById('ae-fpt').value;
+    flowData[pi].timing=document.getElementById('ae-fptm').value;
+    ov.remove();renderFlow();
+  };
+  actions.appendChild(btnCancel);actions.appendChild(btnDel);actions.appendChild(btnSave);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
+function editFlowStep(pi,si){
+  const step=flowData[pi].steps[si];
+  let ov=document.createElement('div');ov.className='edit-overlay';
+  const modal=document.createElement('div');modal.className='edit-modal';
+  modal.innerHTML='<h3>ステップ編集</h3><div class="edit-field"><label>タスク名</label><input id="ae-ft"></div><div class="edit-field"><label>詳細</label><textarea id="ae-fd" rows="3"></textarea></div><div class="edit-field"><label>リンクURL（空欄可）</label><input id="ae-fl"></div><div class="edit-modal-actions"></div>';
+  ov.appendChild(modal);
+  document.body.appendChild(ov);
+  document.getElementById('ae-ft').value=step.task||'';
+  document.getElementById('ae-fd').value=step.detail||'';
+  document.getElementById('ae-fl').value=step.link||'';
+  const actions=modal.querySelector('.edit-modal-actions');
+  const btnCancel=document.createElement('button');btnCancel.className='adv-edit-btn';btnCancel.textContent='キャンセル';
+  btnCancel.onclick=function(){ov.remove();};
+  const btnSave=document.createElement('button');btnSave.className='adv-edit-btn primary';btnSave.textContent='保存';
+  btnSave.onclick=function(){
+    flowData[pi].steps[si].task=document.getElementById('ae-ft').value;
+    flowData[pi].steps[si].detail=document.getElementById('ae-fd').value;
+    flowData[pi].steps[si].link=document.getElementById('ae-fl').value;
+    ov.remove();renderFlow();
+  };
+  actions.appendChild(btnCancel);actions.appendChild(btnSave);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
+function addFlowStepToPhase(pi){
+  const maxNo=flowData.reduce((m,p)=>Math.max(m,...p.steps.map(s=>s.no)),0);
+  flowData[pi].steps.push({no:maxNo+1,task:"新しいステップ",detail:"詳細を入力",link:""});
+  renderFlow();
+  editFlowStep(pi, flowData[pi].steps.length-1);
+}
+
+function deleteFlowStep(pi,si){
+  if(!confirm('ステップ「'+flowData[pi].steps[si].task+'」を削除しますか？'))return;
+  flowData[pi].steps.splice(si,1);
+  renderFlow();
+}
+
+function addFlowPhase(){
+  const num=flowData.length+1;
+  flowData.push({phase:"Step "+num,title:"新しいフェーズ",timing:"",steps:[{no:99,task:"新しいステップ",detail:"詳細を入力",link:""}]});
+  renderFlow();
+  editFlowPhase(flowData.length-1);
+}
+
+// ========== INIT ==========
+renderDS();
+renderMP();
+renderAdv();
+renderPLTree();
+
+</script>
+
+<button class="chat-fab" id="cFab" onclick="cToggle()">💬</button>
+<div class="chat-panel" id="cPanel">
+  <div class="chat-hd">
+    <span class="chat-hd-icon"></span>
+    <div class="chat-hd-body"><div class="chat-hd-title">院別収支 FAQ</div><div class="chat-hd-sub">費目・ロジック・按分ルールをキーワードで検索</div></div>
+    <button class="chat-hd-close" onclick="cToggle()">✕</button>
+  </div>
+  <div class="chat-body" id="cBody">
+    <div class="chat-msg bot">知りたいことをキーワードや文章で入力してください。該当する費目・データソース・按分ルール・バクラクルールを検索します。<br><br>例：<br>・「電話代のロジックを教えて」<br>・「バクラクの除外科目を知りたい」<br>・「按分ルール2の対象は？」<br>・「1ヶ月遅れの費目はどれ？」<br><br>📚 <a href="https://notebooklm.google.com/notebook/fecff665-451b-419a-915a-58f3dba8fe8e" target="_blank" style="color:#1a73e8;font-weight:700">NotebookLM AIに聞く →</a><br><span style="font-size:9px;color:#94A3B8">業務背景・経緯など、このサイトにない情報はAIが回答します</span></div>
+  </div>
+  <div class="chat-tags" id="cTags">
+    <button class="chat-tag" onclick="cAsk(this)">電話代のロジックを教えて</button>
+    <button class="chat-tag" onclick="cAsk(this)">バクラクの除外科目は？</button>
+    <button class="chat-tag" onclick="cAsk(this)">按分ルールの一覧を見たい</button>
+    <button class="chat-tag" onclick="cAsk(this)">賞与はどう計上する？</button>
+    <button class="chat-tag" onclick="cAsk(this)">CC経費の仕組みを教えて</button>
+    <button class="chat-tag" onclick="cAsk(this)">1ヶ月遅れの費目はどれ？</button>
+    <a class="chat-tag" href="https://notebooklm.google.com/notebook/fecff665-451b-419a-915a-58f3dba8fe8e" target="_blank" style="background:#E8F0FE;border-color:#A8C7FA;color:#1a73e8;text-decoration:none">NotebookLM AIに聞く</a>
+  </div>
+  <div class="chat-foot">
+    <textarea class="chat-in" id="cIn" placeholder="キーワードを入力…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();cSend()}"></textarea>
+    <button class="chat-btn" onclick="cSend()">➤</button>
+  </div>
+</div>
+<script>
+function cToggle(){document.getElementById('cPanel').classList.toggle('open');document.getElementById('cFab').classList.toggle('hide');if(document.getElementById('cPanel').classList.contains('open'))document.getElementById('cIn').focus()}
+function cAsk(b){document.getElementById('cIn').value=b.textContent;cSend()}
+function cMsg(html,role){const d=document.createElement('div');d.className='chat-msg '+role;d.innerHTML=html;document.getElementById('cBody').appendChild(d);document.getElementById('cBody').scrollTop=9e9;return d}
+
+// ========== FAQ Knowledge Base ==========
+const FAQ_RULES=[
+{id:1,name:"ルール1",desc:"全業態対象",targets:"情シスPJ費用、事務局内線使用料、事務局アカウント料、戸塚労務部/本部等",excludes:"なし"},
+{id:2,name:"ルール2",desc:"全業態対象（最も汎用）",targets:"一般経費・水道光熱費・Lab純損失・PC消耗品・Amazon・香典・バクラクカード等",excludes:"なし"},
+{id:3,name:"ルール3",desc:"TWE関連費",targets:"TWE関連費（全業態）＋メディカルフォース利用料",excludes:"青空・AGA除外"},
+{id:4,name:"ルール4",desc:"新卒採用費",targets:"新卒採用費",excludes:"青空除外"},
+{id:5,name:"ルール5",desc:"SKビル在庫",targets:"SKビル在庫関連",excludes:"不妊治療除外"},
+{id:9,name:"ルール9",desc:"返金処理",targets:"TWE診療総額の返金（SBC+医療法人合算→マイナス配賦）",excludes:"青空・AGA・歯科・眼科・不妊治療除外"},
+{id:10,name:"ルール10",desc:"研修豊洲・豊洲会議室",targets:"研修豊洲・豊洲会議室関連",excludes:"NEO・青空・AGA・歯科・眼科・不妊治療除外"},
+{id:14,name:"ルール14",desc:"メディカルフォース利用料",targets:"メディカルフォース利用料",excludes:"青空のみ対象（他全除外）"},
+{id:15,name:"ルール15",desc:"AGA専用",targets:"AGA全体のみ",excludes:"他全業態除外"},
+{id:16,name:"ルール16",desc:"歯科専用",targets:"歯科全体のみ",excludes:"他全業態除外"},
+{id:18,name:"ルール18",desc:"レディース専用",targets:"レディース全体のみ",excludes:"他全業態除外"},
+{id:20,name:"ルール20",desc:"SBC全体（一部除外）",targets:"SBC全体",excludes:"AGA・歯科・レディース除外"},
+];
+
+const FAQ_BAKURAKU={
+  excludeCodes:[{c:"184",n:"立替金"},{c:"243",n:"敷金保証金"},{c:"251",n:"預託金"},{c:"314",n:"未払金"},{c:"316",n:"従業員預り金"},{c:"511",n:"自由診療売上"},{c:"552",n:"仕入PJ"},{c:"121",n:"普通預金"},{c:"101",n:"現金"},{c:"166",n:"売掛金"},{c:"312",n:"買掛金"},{c:"185",n:"未収入金"},{c:"186",n:"仮払金"},{c:"992",n:"バクラク諸口"},{c:"991",n:"家賃諸口"}],
+  excludeDepts:[{c:"895",n:"AI Lounge2F"},{c:"982",n:"SBC ART事業部"},{c:"47",n:"ベトナム"},{c:"901",n:"BA新宿"},{c:"890",n:"壱番館"}],
+  indirectDepts:"部門コード0, 999, および株式会社側の除外部門(895/982/47/901/890)",
+  medicalAll:"75培養室(新宿)/102西日本スキャンセンタ/158研修豊洲/0(湘/孝/菜/愛/樹/リ/風全体)/999SBC全体",
+  amount:"税抜がある場合→借方−貸方、税込のみ→(借方−貸方)÷1.1",
+  postingMonth:"{UpdatedDate}−1ヶ月",
+  depreciation:"B列に値→期間償却、摘要「新卒」→04-03年度償却、減価償却→一律3年、后相→翌月から100万ずつ",
+  ccException:"勘定科目=マネジメント原価 かつ 摘要に☆地代家賃☆/☆家賃☆/☆水道光熱費☆→CC経費",
+  closedClinic:"閉院→間接部門へ振替、転換院→転換前の数値削除"
+};
+
+function cSearch(q){
+  q=q.toLowerCase().replace(/[\s　]+/g,' ');
+  // 自然文から検索キーワードを抽出
+  q=q.replace(/を教えて.*|を知りたい.*|について.*|はどう.*|はどれ.*|の仕組み.*|の一覧.*|を見たい.*|ってなに.*|とは[？?]?$/g,'').trim();
+  q=q.replace(/[？?！!。、,.]$/g,'').trim();
+  q=q.replace(/^(教えて|知りたい|見たい|調べたい)\s*/g,'').trim();
+  if(!q) q='按分ルール'; // fallback
+  const results={datasources:[],kamoku:[],rules:[],bakuraku:[]};
+
+  // Search F array (datasources)
+  F.forEach(f=>{
+    const blob=[f.n,f.w,...f.f.flatMap(fi=>[fi.n,fi.nt||'',...fi.e.flatMap(e=>[e.c,e.v,e.d])])].join(' ').toLowerCase();
+    if(blob.includes(q)||q.split(' ').every(w=>blob.includes(w))){
+      results.datasources.push(f);
+    }
+  });
+
+  // Search P array (kamoku)
+  P.forEach(sec=>{
+    sec.i.forEach(item=>{
+      const blob=[sec.s,item.n,...item.r.flatMap(r=>[r.f,r.c,r.l])].join(' ').toLowerCase();
+      if(blob.includes(q)||q.split(' ').every(w=>blob.includes(w))){
+        results.kamoku.push({section:sec.s,color:sec.c,...item});
+      }
+    });
+  });
+
+  // Search rules
+  FAQ_RULES.forEach(r=>{
+    const blob=[r.name,r.desc,r.targets,r.excludes,'按分ルール'+r.id,'ルール'+r.id].join(' ').toLowerCase();
+    if(blob.includes(q)||q.split(' ').every(w=>blob.includes(w))) results.rules.push(r);
+  });
+
+  // Search bakuraku
+  const bBlob=JSON.stringify(FAQ_BAKURAKU).toLowerCase();
+  if(bBlob.includes(q)||['バクラク','bakuraku','除外科目','除外部門','償却','諸口','閉院','転換','cc例外','間接判定'].some(k=>q.includes(k))){
+    results.bakuraku.push(FAQ_BAKURAKU);
+  }
+
+  // 1ヶ月遅れ special query
+  if(q.includes('遅れ')||q.includes('遅延')||q.includes('1ヶ月')||q.includes('1か月')){
+    F.forEach(f=>{
+      f.f.forEach(fi=>{
+        if(fi.nt&&(fi.nt.includes('ヶ月遅れ')||fi.nt.includes('か月遅れ'))){
+          if(!results.datasources.find(d=>d.id===f.id)) results.datasources.push(f);
+        }
+      });
+    });
+  }
+
+  return results;
+}
+
+function cRender(results,q){
+  let html='';
+  const total=results.datasources.length+results.kamoku.length+results.rules.length+results.bakuraku.length;
+  if(!total) return '<div class="chat-noresult">「'+q+'」に該当する情報が見つかりませんでした。<br><br><a href="https://notebooklm.google.com/notebook/fecff665-451b-419a-915a-58f3dba8fe8e" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:linear-gradient(135deg,#1a73e8,#4285f4);color:#fff;border-radius:8px;text-decoration:none;font-size:10px;font-weight:700">NotebookLM AIに聞く</a><br><span style="font-size:9px;color:#94A3B8;margin-top:4px;display:inline-block">より詳しい背景・経緯なども回答できます</span></div>';
+
+  // 費目 (PL view)
+  if(results.kamoku.length){
+    html+='<b>該当費目（'+results.kamoku.length+'件）</b><br>';
+    results.kamoku.forEach(k=>{
+      html+='<div class="chat-result-card"><div class="cr-title" style="color:'+k.color+'">'+k.section+' ＞ '+k.n+'</div>';
+      k.r.forEach(r=>{
+        html+='<div class="cr-row"><span class="cr-label"></span><span class="cr-val">'+r.f+'</span></div>';
+        html+='<div class="cr-row"><span class="cr-label">取込列</span><span class="cr-val">'+r.c+'</span></div>';
+        if(r.l)html+='<div class="cr-row"><span class="cr-label">ロジック</span><span class="cr-val">'+r.l+'</span></div>';
+      });
+      html+='</div>';
+    });
+  }
+
+  // データソース
+  if(results.datasources.length){
+    html+='<b>該当データソース（'+results.datasources.length+'件）</b><br>';
+    results.datasources.forEach(f=>{
+      html+='<div class="chat-result-card"><div class="cr-title">'+f.n+'</div>';
+      html+='<div class="cr-row"><span class="cr-label">提供元</span><span class="cr-val">'+f.w+'</span></div>';
+      html+='<div class="cr-row"><span class="cr-label">報告</span><span class="cr-val">'+f.t+'</span></div>';
+      f.f.forEach(fi=>{
+        html+='<div style="margin:3px 0 0;padding:3px 0;border-top:1px dashed #BAE6FD"><span style="font-weight:700">'+fi.n+'</span>';
+        if(fi.nt){
+          const delay=fi.nt.match(/【[^】]+】/);
+          if(delay)html+=' <span style="background:#FEF2F2;color:#DC2626;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:800">⏱'+delay[0]+'</span>';
+        }
+        html+='</div>';
+        fi.e.forEach(x=>{
+          html+='<div class="cr-row"><span class="cr-label">取込列</span><span class="cr-val">'+x.c+'</span></div>';
+          html+='<div class="cr-row"><span class="cr-label">→行先</span><span class="cr-val" style="color:#1D4ED8;font-weight:800">'+x.d+'</span></div>';
+          if(x.v)html+='<div class="cr-row"><span class="cr-label">ロジック</span><span class="cr-val">'+x.v+'</span></div>';
+        });
+        if(fi.nt){const cl=fi.nt.replace(/【[^】]+】/g,'').trim();if(cl)html+='<div style="margin-top:2px;font-size:9px;color:#64748B">'+cl+'</div>';}
+      });
+      html+='</div>';
+    });
+  }
+
+  // 按分ルール
+  if(results.rules.length){
+    html+='<b>按分ルール（'+results.rules.length+'件）</b><br>';
+    results.rules.forEach(r=>{
+      html+='<div class="chat-result-card"><div class="cr-title">'+r.name+'：'+r.desc+'</div>';
+      html+='<div class="cr-row"><span class="cr-label">対象</span><span class="cr-val">'+r.targets+'</span></div>';
+      html+='<div class="cr-row"><span class="cr-label">除外</span><span class="cr-val">'+r.excludes+'</span></div>';
+      html+='</div>';
+    });
+  }
+
+  // バクラクルール
+  if(results.bakuraku.length){
+    const b=results.bakuraku[0];
+    html+='<b>バクラク共通ルール</b><br>';
+    html+='<div class="chat-result-card">';
+    html+='<div class="cr-title">除外科目（借方）</div>';
+    html+=b.excludeCodes.map(c=>'<span style="display:inline-block;background:#FEF2F2;border:1px solid #FECACA;border-radius:4px;padding:1px 5px;margin:1px;font-size:9px">'+c.c+' '+c.n+'</span>').join(' ');
+    html+='<div style="font-size:9px;color:#92400E;margin-top:3px">※諸口はコード不問で除外</div>';
+    html+='<div class="cr-title" style="margin-top:6px">除外部門（株式会社側）</div>';
+    html+=b.excludeDepts.map(c=>'<span style="display:inline-block;background:#FFF7ED;border:1px solid #FED7AA;border-radius:4px;padding:1px 5px;margin:1px;font-size:9px">'+c.c+' '+c.n+'</span>').join(' ');
+    html+='<div class="cr-title" style="margin-top:6px">主要ルール</div>';
+    html+='<div class="cr-row"><span class="cr-label">金額</span><span class="cr-val">'+b.amount+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">計上月</span><span class="cr-val">'+b.postingMonth+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">償却</span><span class="cr-val">'+b.depreciation+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">CC例外</span><span class="cr-val">'+b.ccException+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">間接</span><span class="cr-val">'+b.indirectDepts+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">閉院等</span><span class="cr-val">'+b.closedClinic+'</span></div>';
+    html+='<div class="cr-row"><span class="cr-label">医法全体割</span><span class="cr-val">'+b.medicalAll+'</span></div>';
+    html+='</div>';
+  }
+
+  html+='<div style="text-align:center;margin-top:6px;padding-top:6px;border-top:1px dashed #E2E8F0"><a href="https://notebooklm.google.com/notebook/fecff665-451b-419a-915a-58f3dba8fe8e" target="_blank" style="color:#1a73e8;font-size:9px;text-decoration:none;font-weight:600">もっと詳しくAIに聞く（NotebookLM）→</a></div>';
+  return html;
+}
+
+function cSend(){
+  const input=document.getElementById('cIn');
+  const q=input.value.trim();
+  if(!q)return;
+  input.value='';
+  document.getElementById('cTags').style.display='none';
+  cMsg(q,'user');
+  const results=cSearch(q);
+  const html=cRender(results,q);
+  cMsg(html,'bot');
+}
+</script>
+</body>
+</html>
