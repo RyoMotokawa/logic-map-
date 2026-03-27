@@ -1116,6 +1116,40 @@ function renderAffiliate(){
     <span style="font-size:18px;color:#94A3B8">↗</span>
   </a>`;
 
+  // 毎月の作業フロー
+  h+=`<div style="margin-top:20px">
+    <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E2E8F0">毎月の更新手順</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <div style="width:22px;height:22px;border-radius:50%;background:#EFF6FF;color:#2563EB;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #BFDBFE">1</div>
+      <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#1E293B">データを取り込む</div><div style="font-size:10px;color:#64748B;margin-top:2px;line-height:1.5">関連院DBの設定画面（⚙）を開き、当月の<b>社長原本</b>と<b>社長原本形式の大学整形収支表</b>をドロップする</div></div>
+    </div>
+    <div style="width:1.5px;height:8px;background:#CBD5E1;margin-left:10px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <div style="width:22px;height:22px;border-radius:50%;background:#EFF6FF;color:#2563EB;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #BFDBFE">2</div>
+      <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#1E293B">GASに保存</div><div style="font-size:10px;color:#64748B;margin-top:2px;line-height:1.5">「GASに保存」をタップして反映完了</div></div>
+    </div>
+  </div>`;
+
+  // 修正があった際の管理方法
+  h+=`<div style="margin-top:20px">
+    <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E2E8F0">修正・メンテナンス方法</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <div style="width:22px;height:22px;border-radius:50%;background:#FEF9C3;color:#92400E;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #FDE68A">1</div>
+      <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#1E293B">GASのコードを修正</div><div style="font-size:10px;color:#64748B;margin-top:2px;line-height:1.5">GASエディタでコードを編集し保存する</div></div>
+    </div>
+    <div style="width:1.5px;height:8px;background:#CBD5E1;margin-left:10px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:6px">
+      <div style="width:22px;height:22px;border-radius:50%;background:#FEF9C3;color:#92400E;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid #FDE68A">2</div>
+      <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#1E293B">デプロイを更新</div><div style="font-size:10px;color:#64748B;margin-top:2px;line-height:1.5">「デプロイを管理」から新しいバージョンに更新する</div></div>
+    </div>
+  </div>`;
+
+  // リンク集
+  h+=`<div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">
+    <a href="https://script.google.com/u/0/home/projects/1y9R_mIh2su7ycQIL8Ust6YgLCqPpEIQ4QqrlrqfDZCh2EHOTM-0oZgOt/edit" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#fff;border:1px solid #E2E8F0;border-radius:8px;text-decoration:none;color:#1E293B;font-size:10px;font-weight:600;transition:all .15s" onmouseover="this.style.background='#F8FAFC';this.style.borderColor='#CBD5E1'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">GASエディタ ↗</a>
+    <a href="https://drive.google.com/drive/folders/1DENqd-keA1Plg0UK-wl4uOzOgQefCblr" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#fff;border:1px solid #E2E8F0;border-radius:8px;text-decoration:none;color:#1E293B;font-size:10px;font-weight:600;transition:all .15s" onmouseover="this.style.background='#F8FAFC';this.style.borderColor='#CBD5E1'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">元データ格納先 ↗</a>
+  </div>`;
+
   el.innerHTML=h;
 }
 
