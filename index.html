@@ -774,12 +774,15 @@ function fetchStorageCheck(){
       const sk=postingYear+'-'+postingMonth;
       
       data.results.forEach(function(r){
+        // IDを正規化（"3"→"03", "5"→"05", "8"→"08"）
+        var id=r.id;
+        if(/^\d$/.test(id)) id='0'+id;
         if(r.status==='OK'){
-          window._storageStatus[sk+'_'+r.id]=1;
-          delete window._storageAlerts[sk+'_'+r.id];
+          window._storageStatus[sk+'_'+id]=1;
+          delete window._storageAlerts[sk+'_'+id];
         } else if(r.status==='NG'){
-          window._storageStatus[sk+'_'+r.id]=2;
-          window._storageAlerts[sk+'_'+r.id]=r.alert;
+          window._storageStatus[sk+'_'+id]=2;
+          window._storageAlerts[sk+'_'+id]=r.alert;
         }
       });
       
@@ -1209,7 +1212,7 @@ document.querySelectorAll('.main-tab').forEach(btn=>{
     if(currentPage==='pltree') renderPLTree();
     if(currentPage==='flow') renderFlow();
     if(currentPage==='diggle') renderDiggle();
-    if(currentPage==='storage') renderStorage();
+    if(currentPage==='storage'){ renderStorage(); fetchStorageCheck(); }
     if(currentPage==='affiliate') renderAffiliate();
   });
 });
