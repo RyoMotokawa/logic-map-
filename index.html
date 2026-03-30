@@ -755,6 +755,45 @@ function fetchStorageCheck(){
     });
 }
 
+// ========== 格納チェック結果取得（同一ドメインJSON） ==========
+window._storageJsonPath = 'storage_check.json';
+
+function fetchStorageCheck(){
+  const el=document.getElementById('storageArea');
+  el.innerHTML='<div style="text-align:center;padding:40px;color:#94A3B8"><div style="font-size:24px;margin-bottom:8px">\u23F3</div>結果を取得中...</div>';
+  
+  fetch(window._storageJsonPath+'?t='+Date.now())
+    .then(r=>{if(!r.ok)throw new Error('未取得');return r.json();})
+    .then(data=>{
+      if(!window._storageStatus) window._storageStatus={};
+      if(!window._storageAlerts) window._storageAlerts={};
+      const now=new Date();
+      let postingMonth,postingYear;
+      if(now.getDate()>=7){postingMonth=now.getMonth()+1;postingYear=now.getFullYear();}
+      else{postingMonth=now.getMonth()===0?12:now.getMonth();postingYear=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();}
+      const sk=postingYear+'-'+postingMonth;
+      
+      data.results.forEach(function(r){
+        if(r.status==='OK'){
+          window._storageStatus[sk+'_'+r.id]=1;
+          delete window._storageAlerts[sk+'_'+r.id];
+        } else if(r.status==='NG'){
+          window._storageStatus[sk+'_'+r.id]=2;
+          window._storageAlerts[sk+'_'+r.id]=r.alert;
+        }
+      });
+      
+      if(data.lastCheck){
+        const d=new Date(data.lastCheck);
+        window._storageLastCheck=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+      }
+      renderStorage();
+    })
+    .catch(err=>{
+      renderStorage();
+    });
+}
+
 // ========== STORAGE STATUS ==========
 // Rule definitions per folder - to be filled with actual rules later
 const storageRules={
