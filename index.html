@@ -378,6 +378,14 @@ body.edit-mode .editable-highlight:hover{outline:1.5px dashed #93C5FD;outline-of
 .chat-btn:hover{opacity:0.85}
 .chat-noresult{color:#94A3B8;font-size:10px;text-align:center;padding:8px}
 @media(max-width:500px){.chat-panel{width:calc(100vw - 16px);height:calc(100vh - 80px);right:8px;bottom:8px;border-radius:12px}}
+
+.gss-dropdown{position:relative;display:inline-block}
+.gss-dropdown-btn{font-size:10px;font-weight:600;color:#059669;background:#ECFDF5;padding:3px 8px;border-radius:5px;white-space:nowrap;border:1px solid #A7F3D0;cursor:pointer;user-select:none}
+.gss-dropdown-btn:hover{background:#D1FAE5;color:#047857}
+.gss-dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:2px;background:#fff;border:1px solid #E2E8F0;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:100;min-width:180px;padding:4px 0}
+.gss-dropdown.open .gss-dropdown-menu{display:block}
+.gss-dropdown-item{display:block;padding:6px 12px;font-size:10px;color:#059669;text-decoration:none;white-space:nowrap}
+.gss-dropdown-item:hover{background:#F0FDF4}
 </style>
 
 <script>
@@ -703,16 +711,21 @@ function goToPLFromDest(dest){
 
 
 
-// ========== GAS連携（CSV公開方式） ==========
-window._storageCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGbEzLyQ98-0Kodb4newYWdvcTEqOJOQcIbB3wn4TkuDfmi6zRs0CDnh7FR0uDGUw4WYNY_pImcRIm/pub?gid=861228135&single=true&output=csv';
+// ========== GAS連携（Webアプリ方式） ==========
+// ★ GASをWebアプリとしてデプロイし、そのURLを設定 ★
+// 手順: GASエディタ → デプロイ → 新しいデプロイ → ウェブアプリ → アクセス:全員 → デプロイ
+window._storageGasUrl = 'https://script.google.com/a/macros/sbc.or.jp/s/AKfycbyV3jvwCYHkFocG8JG12Q9jHcvL_bB669D-WBYM5fwQySfJtKeMoQ6AiULzvqGauuNE/exec';
 
 function fetchStorageCheck(){
-  if(!window._storageCsvUrl) return;
+  if(!window._storageGasUrl){
+    alert('GAS WebアプリURLが未設定です。\nStorageCheck_Code.gsをWebアプリとしてデプロイし、\nURLを _storageGasUrl に設定してください。');
+    return;
+  }
   const el=document.getElementById('storageArea');
-  el.innerHTML='<div style="text-align:center;padding:40px;color:#94A3B8"><div style="font-size:24px;margin-bottom:8px">⏳</div>結果を取得中...</div>';
-  fetch(window._storageCsvUrl)
-    .then(r=>r.text())
-    .then(csv=>{
+  el.innerHTML='<div style="text-align:center;padding:40px;color:#94A3B8"><div style="font-size:24px;margin-bottom:8px">\u23F3</div>結果を取得中...</div>';
+  fetch(window._storageGasUrl)
+    .then(r=>r.json())
+    .then(data=>{
       if(!window._storageStatus) window._storageStatus={};
       if(!window._storageAlerts) window._storageAlerts={};
       const now=new Date();
@@ -720,40 +733,26 @@ function fetchStorageCheck(){
       if(now.getDate()>=7){postingMonth=now.getMonth()+1;postingYear=now.getFullYear();}
       else{postingMonth=now.getMonth()===0?12:now.getMonth();postingYear=now.getMonth()===0?now.getFullYear()-1:now.getFullYear();}
       const sk=postingYear+'-'+postingMonth;
-      const lines=csv.split('\n').filter(l=>l.trim());
-      for(let i=1;i<lines.length;i++){
-        const cols=parseCSVLine_storage(lines[i]);
-        if(cols.length<4) continue;
-        const id=cols[0].trim();
-        const status=cols[2].trim();
-        const alertMsg=cols[3].trim();
-        const checkedAt=cols[4]?cols[4].trim():'';
-        if(status==='OK'){
-          window._storageStatus[sk+'_'+id]=1;
-          delete window._storageAlerts[sk+'_'+id];
-        } else if(status==='NG'){
-          window._storageStatus[sk+'_'+id]=2;
-          window._storageAlerts[sk+'_'+id]=alertMsg;
+      
+      (data.results||[]).forEach(r=>{
+        if(r.status==='OK'){
+          window._storageStatus[sk+'_'+r.id]=1;
+          delete window._storageAlerts[sk+'_'+r.id];
+        } else if(r.status==='NG'){
+          window._storageStatus[sk+'_'+r.id]=2;
+          window._storageAlerts[sk+'_'+r.id]=r.alert;
         }
-        if(i===1&&checkedAt){
-          try{const d=new Date(checkedAt);window._storageLastCheck=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}catch(e){}
-        }
+      });
+      
+      if(data.lastCheck){
+        const d=new Date(data.lastCheck);
+        window._storageLastCheck=d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
       }
       renderStorage();
     })
     .catch(err=>{
-      el.innerHTML='<div style="text-align:center;padding:40px;color:#DC2626"><div style="font-size:24px;margin-bottom:8px">⚠</div>取得に失敗しました<br><span style="font-size:9px;color:#94A3B8">'+err.message+'</span></div>';
+      el.innerHTML='<div style="text-align:center;padding:40px;color:#DC2626"><div style="font-size:24px;margin-bottom:8px">\u26A0</div>取得に失敗しました<br><span style="font-size:9px;color:#94A3B8">'+err.message+'</span></div>';
     });
-}
-
-function parseCSVLine_storage(line){
-  const r=[];let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(inQ){if(c==='"'&&i+1<line.length&&line[i+1]==='"'){cur+='"';i++;}else if(c==='"')inQ=false;else cur+=c;}
-    else{if(c==='"')inQ=true;else if(c===','){r.push(cur);cur='';}else cur+=c;}
-  }
-  r.push(cur);return r;
 }
 
 // ========== STORAGE STATUS ==========
@@ -1950,7 +1949,7 @@ el.innerHTML=h;
 function toggleAdv(id){advOpen.has(id)?advOpen.delete(id):advOpen.add(id);renderAdv()}
 
 // ========== 作成フロー ==========
-const flowData=[{phase: "Step 1", title: "取込前準備", timing: "", steps: [{no: 1, task: "各ファイルの格納確認・ファイルチェック", detail: "Google Drive各フォルダに当月分ファイルが格納されているか確認。CSV化されているか、計上月が正しいか、ヘッダー行が含まれているかをチェック。", link: "storage"}, {no: 2, task: "バクラク：開院前費用の確認", detail: "開院前の費用が含まれていないか確認し、該当があれば除外処理を行う。開院前費用は蓄積シートに記録する。", link: "https://drive.google.com/drive/folders/1aXpnV0BaxzNpsF43UHkRWEB7aD13eI6P?role=writer"}, {no: 3, task: "バクラク：データ加工（GAS）→○×付与→各法人分割加工（GAS）", detail: "バクラクデータ加工のGASにおいて、採用費返金分の追記・事務局地代家賃（二重計上分）の×付与・后相費の処理を同時に処理。社長の並び順要メンテナンス。○×付与はいずれ社長・山崎さんへ移管。現状マクロシートを確認し追記。", link: "https://drive.google.com/drive/folders/1M1JYUGlzcCisc9Twg2fYL-UuOSzsIL0M?role=writer"}, {no: 4, task: "共通研究開発費：前月Lab新宿の赤字金額を入力（該当月のみ）", detail: "前月Lab新宿が赤字だった場合、その金額を見込の対象月に入力する。", link: "https://sbc-med.diggle.jp/v/333/budgets"}, {no: 5, task: "TWE試算表：オンライン院仕入金額にMed.の金額を追加", detail: "オンライン院の仕入金額にMed.の金額を追加する。GASで対応。", link: ""}, {no: 6, task: "ファイル作成：広告費", detail: "広告宣伝費のファイルを作成し、Google Driveへ格納。", link: "", wcheck: true}, {no: 7, task: "ファイル作成：共通人件費（勤怠実績計算分）", detail: "勤怠実績に基づく共通人件費の計算ファイルを作成し、Google Driveへ格納。", link: "", wcheck: true}, {no: 8, task: "新規開院・業態転換・閉院があればメンテナンス", detail: "新規開院・業態転換・閉院があった場合、部門の追加（階層CFを設定）・対応表の追加・レポート上に院を追加する。", link: ""}]}, {phase: "Step 2", title: "取込・インポート", timing: "準備できたファイルから順次実施", steps: [{no: 9, task: "各費目でGASを実行", detail: "GASを実行し、CSVをスプシに変換する。", link: ""}, {no: 10, task: "各費目のインポート", detail: "準備ができた費目から順次DIGGLEへインポートする。※今後は全費目の自動インポートへ移行予定。", link: ""}]}, {phase: "Step 3", title: "配賦実行・実装完了", timing: "全費目のインポート完了後", steps: [{no: 11, task: "配賦スナップショットの実行", detail: "全費目のインポートが完了したことを確認し、DIGGLEで配賦スナップショットを実行する。両国ファイルの格納後、新しい試算表とともに再度インポート/配賦スナップショットを実行する。", link: ""}]}, {phase: "Step 4", title: "社長確認", timing: "DIGGLE実装完了後", steps: [{no: 12, task: "データ加工", wcheck: true, detail: "DIGGLEにて院別収支表・社長原本（税抜）・社長原本（税込）に「社長原本」の軸を追加（未指定・合計は削除）し、CSV出力。出力したCSVをフォルダに格納しGASを回す。出来上がった提出用のExcelを確認（院が過不足ないか・エラーがないか）。", link: "https://drive.google.com/drive/folders/1C9BqrfTDGT-SRntyBHQ0AszZYlUy-2UM?role=writer"}, {no: 13, task: "社長提出", detail: "確認済みの院別収支表・社長原本を社長に提出する。", link: ""}]}, {phase: "Step 5", title: "Looker実装・展開", timing: "社長確認後", steps: [{no: 14, task: "レポートCSV出力→指定ドライブに格納", detail: "DIGGLEから院別収支レポートをCSV出力し、所定のGoogle Driveフォルダに格納する。※のちに自動化予定。", link: "", wcheck: true}, {no: 15, task: "Lookerへ自動取り込み（毎日11時）", detail: "Google Driveに格納されたCSVが毎日11時にLookerへ自動取り込みされる。", link: ""}, {no: 16, task: "現場展開", detail: "完成したダッシュボードのリンクや要点を現場に展開する。", link: ""}]}];
+const flowData=[{phase: "Step 1", title: "取込前準備", timing: "", steps: [{no: 1, task: "各ファイルの格納確認・ファイルチェック", detail: "Google Drive各フォルダに当月分ファイルが格納されているか確認。CSV化されているか、計上月が正しいか、ヘッダー行が含まれているかをチェック。", link: "storage"}, {no: 2, task: "バクラク：社長提出前処理（開院前費用の蓄積）", detail: "開院前の費用が含まれていないか確認し、該当があれば除外処理を行う。開院前費用は蓄積シートに記録する。", link: "https://drive.google.com/drive/folders/1aXpnV0BaxzNpsF43UHkRWEB7aD13eI6P?role=writer"}, {no: 3, task: "バクラク：社長提出前処理（採用費返金分の追記）", detail: "採用部予算管理シートから返金分の仕訳をバクラクに追加する。", link: "https://script.google.com/home/projects/1sJv53dOJ8LtvEjep1GXTtcbYCl46I8ZC1tFS-dxheeWeVClhkHTnT7A-/edit"}, {no: 4, task: "后相費：社長提出前処理（后相費計上シートの作成）", detail: "バクラクデータから100万円以上の后相費を后相費計上シートに追加する（100万円以上の后相費はDIGGLEにて除外）。", link: "https://drive.google.com/drive/folders/1Kph0pEdlVnmRSEzMoOO9kmJjEdMbvEP8?usp=drive_link"}, {no: 5, task: "バクラク：データ加工（GAS）→○×付与→各法人分割加工（GAS）", detail: "バクラクデータ加工のGASにおいて、事務局地代家賃（二重計上分）の×付与を同時に処理。社長の並び順要メンテナンス。○×付与はいずれ社長・山崎さんへ移管。現状マクロシートを確認し追記。", link: "https://drive.google.com/drive/folders/1M1JYUGlzcCisc9Twg2fYL-UuOSzsIL0M?role=writer"}, {no: 6, task: "共通研究開発費：前月Lab新宿の赤字金額を入力（該当月のみ）", detail: "前月Lab新宿が赤字だった場合、その金額を見込の対象月に入力する。", link: "https://sbc-med.diggle.jp/v/333/budgets"}, {no: 7, task: "TWE試算表：オンライン院仕入金額にMed.の金額を追加", detail: "オンライン院の仕入金額にMed.の金額を追加する。GASで対応。", link: "https://docs.google.com/spreadsheets/d/1TBhFXdPprVRtkHyGYGNDgl4DjK66JH-7du3Ark3Xfjc/edit"}, {no: 8, task: "ファイル作成：広告費", detail: "広告宣伝費のファイルを作成し、Google Driveへ格納。", link: "", wcheck: true}, {no: 9, task: "ファイル作成：共通人件費（勤怠実績計算分）", detail: "勤怠実績に基づく共通人件費の計算ファイルを作成し、Google Driveへ格納。", link: "", wcheck: true}, {no: 10, task: "新規開院・業態転換・閉院があればメンテナンス", detail: "新規開院・業態転換・閉院があった場合、部門の追加（階層CFを設定）・対応表の追加・レポート上に院を追加する。", link: ""}]}, {phase: "Step 2", title: "取込・インポート", timing: "準備できたファイルから順次実施", steps: [{no: 11, task: "各費目でGASを実行", detail: "GASを実行し、CSVをスプシに変換する。", link: ""}, {no: 12, task: "各費目のインポート", detail: "準備ができた費目から順次DIGGLEへインポートする。※今後は全費目の自動インポートへ移行予定。", link: ""}]}, {phase: "Step 3", title: "配賦実行・実装完了", timing: "全費目のインポート完了後", steps: [{no: 13, task: "配賦スナップショットの実行", detail: "全費目のインポートが完了したことを確認し、DIGGLEで配賦スナップショットを実行する。両国ファイルの格納後、新しい試算表とともに再度インポート/配賦スナップショットを実行する。", link: ""}]}, {phase: "Step 4", title: "社長確認", timing: "DIGGLE実装完了後", steps: [{no: 14, task: "データ加工", wcheck: true, detail: "DIGGLEにて院別収支表・社長原本（税抜）・社長原本（税込）に「社長原本」の軸を追加（未指定・合計は削除）し、CSV出力。出力したCSVをフォルダに格納しGASを回す。出来上がった提出用のExcelを確認（院が過不足ないか・エラーがないか）。", link: "https://drive.google.com/drive/folders/1C9BqrfTDGT-SRntyBHQ0AszZYlUy-2UM?role=writer"}, {no: 15, task: "社長提出", detail: "確認済みの院別収支表・社長原本を社長に提出する。", link: ""}]}, {phase: "Step 5", title: "Looker実装・展開", timing: "社長確認後", steps: [{no: 16, task: "レポートCSV出力→指定ドライブに格納", detail: "DIGGLEから院別収支レポートをCSV出力し、所定のGoogle Driveフォルダに格納する。※のちに自動化予定。", link: "", wcheck: true}, {no: 17, task: "Lookerへ自動取り込み（毎日11時）", detail: "Google Driveに格納されたCSVが毎日11時にLookerへ自動取り込みされる。", link: ""}, {no: 18, task: "現場展開", detail: "完成したダッシュボードのリンクや要点を現場に展開する。", link: ""}]}];
 
 // ========== DIGGLE ==========
 const diggleManuals=[
@@ -2071,7 +2070,7 @@ function renderFlow(){
         <div class="flow-step-body">
           <div class="flow-step-task">${esc(step.task)}${step.wcheck?` <span style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;vertical-align:middle;margin-left:4px">Wチェック</span>`:''}</div>
           <div class="flow-step-detail">${esc(step.detail)}</div>
-          ${step.link?(step.link==="storage"?`<span class="flow-step-link" style="cursor:pointer" onclick="document.querySelector(\'[data-page=storage]\').click()">格納状況タブ →</span>`:`<a href="${step.link}" target="_blank" class="flow-step-link">関連リンク ↗</a>`):''}
+          ${step.link?(step.link==="storage"?`<span class="flow-step-link" style="cursor:pointer" onclick="document.querySelector(\'[data-page=storage]\').click()">格納状況タブ →</span>`:`<a href="${step.link}" target="_blank" class="flow-step-link">${step.link.includes("script.google.com")?"GAS ↗":step.link.includes("docs.google.com/spreadsheets")?"スプレッドシート ↗":step.link.includes("drive.google.com")?"フォルダ ↗":step.link.includes("diggle.jp")?"DIGGLE ↗":"リンク ↗"}</a>`):''}
         </div>
       </div>`;
       if(si<phase.steps.length-1) h+='<div class="flow-connector"></div>';
