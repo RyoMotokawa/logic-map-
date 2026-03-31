@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans JP',sans-serif;background:#F4F5F7;min-height:100vh;color:#1E293B;-webkit-font-smoothing:antialiased;}
+body{font-family:'Noto Sans JP',sans-serif;background:#F4F5F7;min-height:100vh;color:#1E293B;-webkit-font-smoothing:antialiased;zoom:1.21}
 .header{background:#0F172A;padding:28px 20px 0;color:#fff}
 .header-inner{max-width:960px;margin:0 auto}
 .header-sub{font-size:10px;letter-spacing:4px;text-transform:uppercase;opacity:0.35;font-weight:500}
@@ -161,8 +161,31 @@ body.edit-mode .editable-highlight:hover{outline:1.5px dashed #93C5FD;outline-of
 .flow-step-link{font-size:10px;color:#3B82F6;text-decoration:none;margin-top:3px;display:inline-block}
 .flow-step-link:hover{text-decoration:underline}
 .flow-connector{width:1.5px;height:12px;background:#CBD5E1;margin-left:12px}
-.flow-phase-connector{width:2px;height:20px;background:#94A3B8;margin:0 auto;border-radius:1px}
+.flow-phase-connector{width:2px;height:20px;background:#94A3B8;margin:0 auto;border-radi
+body{zoom:1.21}
 
+
+
+
+
+
+
+
+
+
+us:1px}
+
+
+.pl-detail-panel{display:none;width:340px;min-width:340px;border-left:1px solid #E2E8F0;background:#FAFBFC;overflow-y:auto;max-height:80vh;position:sticky;top:20px;align-self:flex-start}
+.pl-detail-panel.open{display:block}
+.pl-detail-body{padding:10px 12px}
+.pl-source-card{background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.pl-source-folder{font-size:10px;color:#64748B;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.pl-source-file{font-size:11px;font-weight:700;color:#1E293B;margin-bottom:3px}
+.pl-source-col{font-size:10px;color:#713F12;background:#FEF9C3;padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:3px;font-family:monospace}
+.pl-source-note{font-size:10px;color:#64748B;margin-top:2px}
+.pl-no-source{font-size:11px;color:#94A3B8;padding:16px;text-align:center}
+.plt-leaf.pl-selected{background:#EFF6FF;border-color:#3B82F6;box-shadow:0 0 0 1px #3B82F6}
 </style>
 </head>
 <body>
