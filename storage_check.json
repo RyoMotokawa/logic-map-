@@ -3,90 +3,90 @@
     {
       "id": "01a",
       "name": "01人件費_給与集計",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "変更後フォーマット_給与集計20260403.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202605) フォルダ内4件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "01b",
       "name": "01人件費_経費移動",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "出向分経費移動_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "01c",
       "name": "01人件費_賞与集計",
       "status": "SKIP",
       "alert": "今月は対象外（1,7月のみ）",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 0,
       "fileName": ""
     },
     {
       "id": "02a",
       "name": "02共通人件費_勤怠実績",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "20260403_3月全体スタッフ人件費.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202605) フォルダ内3件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "02b",
       "name": "02共通人件費_全体経費",
       "status": "NG",
-      "alert": "A1「3月31日」≠2026年3月",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 2,
-      "fileName": "②全体経費ver4_2026.3.csv"
+      "alert": "該当ファイルなし (検索:2026.4/2026.04) フォルダ内4件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "03",
       "name": "03広告宣伝費",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "20260402_3月広告費新ルール配賦シート.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202605) フォルダ内3件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "04a",
       "name": "04通信費_電話代（オリックス）",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 2,
-      "fileName": "オリックス請求書_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内5件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "04b",
       "name": "04通信費_電話代（SB/ドコモ/楽天）",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 8,
-      "fileName": "202602_MG(KS)_ソフトバンク_Mgr用.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202603) フォルダ内25件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "04c",
       "name": "04通信費_アカウント使用料",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 2,
-      "fileName": "アカウント使用状況_2026年3月_Gene除く_20260331_経理マスタとの照合.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026年4月/2026年04月) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "04d",
       "name": "04通信費_内線使用料",
       "status": "SKIP",
       "alert": "今月は対象外（2月のみ）",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 0,
       "fileName": ""
     },
@@ -95,43 +95,43 @@
       "name": "04通信費_勘定奉行SBCPJ",
       "status": "OK",
       "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 1,
-      "fileName": "202603_sbc_torihikisaki.csv"
+      "fileName": "202604_sbc_torihikisaki.csv"
     },
     {
       "id": "05",
       "name": "05機器リース",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 2,
-      "fileName": "レーザー経費 加工2026.3.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026.4/2026.04) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06a",
       "name": "06雑費_バクラクデータ",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 14,
-      "fileName": "jukei_202604 - jukei_202604.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202605) フォルダ内30件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06b",
       "name": "06雑費_小口バクラク分",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 19,
-      "fileName": "(test)2026.3.26_孝和会.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026.4/2026.04) フォルダ内59件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06c",
       "name": "06雑費_小口現金分",
       "status": "NG",
-      "alert": "該当ファイルなし (検索:20260331) フォルダ内6件",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "alert": "該当ファイルなし (検索:20260430) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 0,
       "fileName": ""
     },
@@ -139,156 +139,156 @@
       "id": "06d",
       "name": "06雑費_バクラクカード",
       "status": "NG",
-      "alert": "該当ファイルなし (検索:3月分) フォルダ内34件",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "alert": "該当ファイルなし (検索:4月分) フォルダ内34件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 0,
       "fileName": ""
     },
     {
       "id": "06e",
       "name": "06雑費_アマゾン",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "DIGGLE対応形式：２月分３月支払 医療法人Amaon集計表.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:3月分4月支払/03月分04月支払) フォルダ内3件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06f",
       "name": "06雑費_アスクル",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "DIGGLE対応形式：２月分３月支払 医療法人アスクル集計表.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:3月分4月支払/03月分04月支払) フォルダ内3件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06g",
       "name": "06雑費_ボディアーキ",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 2,
-      "fileName": "ﾎﾞﾃﾞｨｱｰｷ5万円特別優待券売上集計2026.2 - ﾎﾞﾃﾞｨｱｰｷ5万円特別優待券売上集計2026.2.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026.3/2026.03) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06h",
       "name": "06雑費_PC消耗品",
       "status": "OK",
       "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 2,
-      "fileName": "【Kintone2026年2月納品】備品在庫（PC,iPad以外）.csv"
+      "fileName": "【Kintone2026年3月納品】備品在庫（PC,iPad以外）.csv"
     },
     {
       "id": "06i",
       "name": "06雑費_麻酔科人件費",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "麻酔科_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内5件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06j1",
       "name": "06雑費_香典",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 3,
+      "status": "NG",
+      "alert": "2026年5月に更新されたファイルなし",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 9,
       "fileName": "香典_2026.3"
     },
     {
       "id": "06j2",
       "name": "06雑費_健康診断料金",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "愛恵会健診_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06j3",
       "name": "06雑費_ワクチン代金",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "ワクチン申請 2026.3 - ワクチン申請 2026.3.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026.4/2026.04) フォルダ内5件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "06j4",
       "name": "06雑費_経費移動",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "経費移動_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "07a",
       "name": "07CC件数_電話件数",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "status": "NG",
+      "alert": "D1「2026/03」≠2026年4月",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 3,
       "fileName": "通話記録（仙台対応件数抽出） (2).csv"
     },
     {
       "id": "07b",
       "name": "07CC件数_メール件数",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "CCメール件数_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内6件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "08",
       "name": "08減価償却費",
       "status": "SKIP",
       "alert": "チェック不要",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
       "fileCount": 0,
       "fileName": ""
     },
     {
       "id": "09a",
       "name": "09TWE_試算表",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 4,
-      "fileName": "試算表_2026_03_税抜_両国後.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:2026_04/2026_4) フォルダ内12件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "09b",
       "name": "09TWE_診療総額（返金）",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "診療総額データ_202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内7件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "10a",
       "name": "10各院経費_両国",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
-      "fileName": "202603.csv"
+      "status": "NG",
+      "alert": "該当ファイルなし (検索:202604) フォルダ内4件",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 0,
+      "fileName": ""
     },
     {
       "id": "10b",
       "name": "10各院経費_ベトナム",
-      "status": "OK",
-      "alert": "",
-      "checkedAt": "2026-04-06T14:31:50.846Z",
-      "fileCount": 1,
+      "status": "NG",
+      "alert": "2026年5月に更新されたファイルなし",
+      "checkedAt": "2026-04-06T15:31:47.914Z",
+      "fileCount": 2,
       "fileName": "ベトナム_202603.csv"
     }
   ],
-  "lastCheck": "2026-04-06T14:31:50.846Z",
-  "updatedAt": "2026-04-06T14:33:59.718Z"
+  "lastCheck": "2026-04-06T15:31:47.914Z",
+  "updatedAt": "2026-04-06T15:32:46.843Z"
 }
