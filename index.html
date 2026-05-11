@@ -256,12 +256,12 @@ us:1px}
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-size:12px;font-weight:700;color:#475569">バージョン</span>
         <div class="sub-tabs" id="advVerTabs">
-          <button class="sub-tab active" data-ver="1" onclick="switchAdvVer(1)">v1 — 初版</button>
-          <button class="sub-tab" data-ver="2" onclick="switchAdvVer(2)">v2 — 4/22変更</button>
+          <button class="sub-tab" data-ver="1" onclick="switchAdvVer(1)">v1 — 初版</button>
+          <button class="sub-tab active" data-ver="2" onclick="switchAdvVer(2)">v2 — 4/22変更</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:10px;color:#94A3B8" id="advVerDate">2026.03 作成</span>
+        <span style="font-size:10px;color:#94A3B8" id="advVerDate">2026.04.22 更新</span>
       </div>
     </div>
     <div style="padding:16px 20px" id="advList"></div>
@@ -1824,7 +1824,7 @@ function findSources(name){
 }
 
 const advOpen=new Set(["adv1"]);
-let currentAdvVer=1;
+let currentAdvVer=2;
 
 const advVersions=[
   {ver:1, label:"v1 — 初版", date:"2026.03 作成"},
@@ -1890,7 +1890,7 @@ h+=`<div class="adv-section ${s1}"><div class="adv-section-head" onclick="toggle
 // Card 1-1: 勤務実績ベース
 h+=`<div class="adv-card"><div class="adv-card-head">
 <div class="adv-card-title">特定の対象スタッフを勤務実績ベースの配賦へ移行</div></div>
-<div class="adv-card-body">以下のスタッフについて、単なる売上按分ではなく、<b>実際の稼働実態を反映した配賦</b>に変更されました。</div>
+<div class="adv-card-body">以下のスタッフについて、単なる売上按分ではなく、<b>実際の稼働実態を反映した配賦</b>に変更。</div>
 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
 <span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">チャレンジクルー</span>
 <span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#7C3AED0a;border:1px solid #7C3AED25;border-radius:8px;font-size:12px;font-weight:600;color:#5B21B6">時短スタッフ</span>
@@ -1924,7 +1924,7 @@ h+=oxTable('事務局・全体Dr・理事長・Dr賞与 ○×表','20260301_全�
 {n:'全体Dr：中村先生(60%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
 {n:'全体Dr：加藤先生(67%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
 {n:'全体Dr：金先生(33%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇','〇']},
-{n:'全体Dr：新明先生(100%)',v:['〇','〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
+{n:currentAdvVer>=2?'全体Dr：新明先生(自院勤務分の67%)':'全体Dr：新明先生(100%)',v:['〇','〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
 {n:'全体Dr：居川先生(100%)',v:['〇','〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖']},
 {n:'全体Dr：竹田先生(1100万)',v:['〇','〇','〇','〇','〇','〇','〇','✖','✖','✖','✖','✖','✖']},
 {n:currentAdvVer>=2?'全体Dr：横谷先生(10%)':'全体Dr：横谷先生(20%)',v:['〇','〇','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖','✖']},
